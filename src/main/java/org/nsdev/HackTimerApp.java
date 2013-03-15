@@ -1,26 +1,20 @@
 package org.nsdev;
 
 import android.app.Application;
-import android.content.Context;
 import android.location.Location;
-import android.os.Vibrator;
-import android.widget.Toast;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
-
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 
 /**
  * Created by neal 13-03-11 10:16 PM
  */
-public class HackTimerApp extends Application {
-
+public class HackTimerApp extends Application
+{
     private static Bus bus;
 
     @Override
-    public void onCreate() {
+    public void onCreate()
+    {
         super.onCreate();
 
         // Initialized the database
@@ -31,14 +25,16 @@ public class HackTimerApp extends Application {
     }
 
     @Override
-    public void onTerminate() {
+    public void onTerminate()
+    {
         super.onTerminate();
 
         bus.unregister(this);
     }
 
     @Subscribe
-    public void onLocation(Location location) {
+    public void onLocation(Location location)
+    {
         /*
         Toast.makeText(this, String.format("%f %f %f", location.getLatitude(), location.getLongitude(), location.getAccuracy()), Toast.LENGTH_LONG).show();
 
@@ -71,7 +67,8 @@ public class HackTimerApp extends Application {
         */
     }
 
-    public static Bus getBus() {
+    public static Bus getBus()
+    {
         return bus;
     }
 }

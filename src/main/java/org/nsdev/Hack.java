@@ -40,19 +40,9 @@ public class Hack
         return latitude;
     }
 
-    public void setLatitude(double latitude)
-    {
-        this.latitude = latitude;
-    }
-
     public double getLongitude()
     {
         return longitude;
-    }
-
-    public void setLongitude(double longitude)
-    {
-        this.longitude = longitude;
     }
 
     public Date getTimestamp()
@@ -60,8 +50,8 @@ public class Hack
         return timestamp;
     }
 
-    public void setTimestamp(Date timestamp)
+    public int getId()
     {
-        this.timestamp = timestamp;
+        return id;
     }
 }

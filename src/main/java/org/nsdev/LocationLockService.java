@@ -20,85 +20,107 @@ import java.util.Date;
  * <p/>
  * Created by neal 13-03-03 1:42 PM
  */
-public class LocationLockService extends Service {
+public class LocationLockService extends Service
+{
     private Looper mServiceLooper;
     private ServiceHandler mServiceHandler;
     private static Location currentLocation;
     private Handler mainHandler;
 
-    public static class Hack {
+    public static class Hack
+    {
 
         private Date date;
         private Location location;
 
-        public Hack(Date date, Location location) {
+        public Hack(Date date, Location location)
+        {
             this.date = date;
             this.location = location;
         }
 
-        public Date getDate() {
+        public Date getDate()
+        {
             return date;
         }
 
-        public void setDate(Date date) {
+        public void setDate(Date date)
+        {
             this.date = date;
         }
 
-        public Location getLocation() {
+        public Location getLocation()
+        {
             return location;
         }
 
-        public void setLocation(Location location) {
+        public void setLocation(Location location)
+        {
             this.location = location;
         }
     }
 
     private static ArrayList<Hack> hacks = new ArrayList<Hack>(15);
 
-    private LocationListener mLocationListener = new LocationListener() {
+    private LocationListener mLocationListener = new LocationListener()
+    {
 
-        public void onLocationChanged(final Location location) {
+        public void onLocationChanged(final Location location)
+        {
             currentLocation = location;
-            mainHandler.post(new Runnable() {
-                public void run() {
+            mainHandler.post(new Runnable()
+            {
+                public void run()
+                {
                     HackTimerApp.getBus().post(location);
                 }
             });
         }
 
-        public void onStatusChanged(String s, int i, Bundle bundle) {
+        public void onStatusChanged(String s, int i, Bundle bundle)
+        {
         }
 
-        public void onProviderEnabled(String s) {
+        public void onProviderEnabled(String s)
+        {
         }
 
-        public void onProviderDisabled(String s) {
+        public void onProviderDisabled(String s)
+        {
         }
     };
 
-    public static void addHack(Date date, Location location) {
+    public static void addHack(Date date, Location location)
+    {
         hacks.add(new Hack(date, location));
     }
 
-    public static ArrayList<Hack> getHacks() {
+    public static ArrayList<Hack> getHacks()
+    {
         return hacks;
     }
 
     // Handler that receives messages from the thread
-    private final class ServiceHandler extends Handler {
-        public ServiceHandler(Looper looper) {
+    private final class ServiceHandler extends Handler
+    {
+        public ServiceHandler(Looper looper)
+        {
             super(looper);
         }
 
         @Override
-        public void handleMessage(Message msg) {
-            switch (msg.arg2) {
-                case 0: {
+        public void handleMessage(Message msg)
+        {
+            switch (msg.arg2)
+            {
+                case 0:
+                {
                     stopSelf(msg.arg1);
                     break;
                 }
-                case 1: {
-                    LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                case 1:
+                {
+                    LocationManager locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
 
                     Criteria criteria = new Criteria();
                     criteria.setAccuracy(Criteria.ACCURACY_FINE);
@@ -114,7 +136,8 @@ public class LocationLockService extends Service {
     }
 
     @Override
-    public void onCreate() {
+    public void onCreate()
+    {
 
         mainHandler = new Handler();
 
@@ -132,8 +155,12 @@ public class LocationLockService extends Service {
     }
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent == null) return START_STICKY;
+    public int onStartCommand(Intent intent, int flags, int startId)
+    {
+        if (intent == null)
+        {
+            return START_STICKY;
+        }
 
         // For each start request, send a message to start a job and deliver the
         // start ID so we know which request we're stopping when we finish the job
@@ -147,19 +174,22 @@ public class LocationLockService extends Service {
     }
 
     @Override
-    public IBinder onBind(Intent intent) {
+    public IBinder onBind(Intent intent)
+    {
         // We don't provide binding, so return null
         return null;
     }
 
     @Override
-    public void onDestroy() {
-        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+    public void onDestroy()
+    {
+        LocationManager locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
         locationManager.removeUpdates(mLocationListener);
         Toast.makeText(this, "GPS Unlocked", Toast.LENGTH_SHORT).show();
     }
 
-    public static Location getCurrentLocation() {
+    public static Location getCurrentLocation()
+    {
         return currentLocation;
     }
 }

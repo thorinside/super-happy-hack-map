@@ -12,7 +12,6 @@ import android.os.PowerManager;
 import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-import android.view.View;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
@@ -76,9 +75,11 @@ public class HackReceiver extends BroadcastReceiver
             if (h != null)
             {
                 float[] results = new float[3];
-                Location.distanceBetween(currentLocation.getLatitude(), currentLocation.getLongitude(), h.getLatitude(), h.getLongitude(), results);
+                Location.distanceBetween(currentLocation.getLatitude(), currentLocation.getLongitude(), h
+                        .getLatitude(), h.getLongitude(), results);
 
-                v.setTextViewText(R.id.text_timer, String.format("%.2f %s", results[0],formatTimeString(timeUntilHackable(h))));
+                v.setTextViewText(R.id.text_timer, String
+                        .format("%.2f %s", results[0], formatTimeString(timeUntilHackable(h))));
                 //v.setViewVisibility(R.id.btn_hack, View.INVISIBLE);
             }
             else
@@ -94,7 +95,7 @@ public class HackReceiver extends BroadcastReceiver
 
         b.setContent(v);
 
-        NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationManager nm = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
 
         nm.notify(0, b.build());
 
@@ -113,8 +114,7 @@ public class HackReceiver extends BroadcastReceiver
             i.setAction(null);
             context.startService(i);
 
-            AlarmManager am = (AlarmManager) context
-                    .getSystemService(Context.ALARM_SERVICE);
+            AlarmManager am = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
 
             am.cancel(currentAlarm);
 
@@ -128,7 +128,8 @@ public class HackReceiver extends BroadcastReceiver
                 Hack h = findNearestUnexpiredHack(currentLocation);
                 if (h != null)
                 {
-                    Toast.makeText(context, "Hack allowed in " + formatTimeString(timeUntilHackable(h)), Toast.LENGTH_LONG).show();
+                    Toast.makeText(context, "Hack allowed in " + formatTimeString(timeUntilHackable(h)), Toast.LENGTH_LONG)
+                         .show();
                     //closeStatusBar(context);
                     return;
                 }
@@ -136,7 +137,7 @@ public class HackReceiver extends BroadcastReceiver
                 Hack hack = new Hack(currentLocation.getLatitude(), currentLocation.getLongitude(), new Date());
                 DatabaseManager.getInstance().save(hack);
                 Toast.makeText(context, "Hack location recorded.", Toast.LENGTH_LONG).show();
-                synchronized(cacheLock)
+                synchronized (cacheLock)
                 {
                     cachedHacks = null;
                 }
@@ -149,11 +150,13 @@ public class HackReceiver extends BroadcastReceiver
         else if (intent.getAction().equals("org.nsdev.ingresstoolbelt.trigger"))
         {
             if (updateNotification(context))
+            {
                 schedNext(context);
+            }
         }
         else
         {
-            Log.e(TAG, "Got: "+intent.getAction());
+            Log.e(TAG, "Got: " + intent.getAction());
         }
     }
 
@@ -162,7 +165,7 @@ public class HackReceiver extends BroadcastReceiver
         Date now = new Date();
 
         List<Hack> hacks;
-        synchronized(cacheLock)
+        synchronized (cacheLock)
         {
             if (cachedHacks != null)
             {
@@ -184,7 +187,8 @@ public class HackReceiver extends BroadcastReceiver
         for (Hack h : hacks)
         {
             float[] results = new float[3];
-            Location.distanceBetween(currentLocation.getLatitude(), currentLocation.getLongitude(), h.getLatitude(), h.getLongitude(), results);
+            Location.distanceBetween(currentLocation.getLatitude(), currentLocation.getLongitude(), h.getLatitude(), h
+                    .getLongitude(), results);
             float distance = results[0];
             Log.d(TAG, String.format("Distance: %.2f", distance));
             long hackAge = now.getTime() - h.getTimestamp().getTime();
@@ -193,7 +197,8 @@ public class HackReceiver extends BroadcastReceiver
             {
                 Log.e(TAG, "Removing old hack.");
                 DatabaseManager.getInstance().deleteHack(h);
-                synchronized(cacheLock) {
+                synchronized (cacheLock)
+                {
                     Log.d(TAG, "Dumping Cache");
                     cachedHacks = null;
                 }
@@ -202,7 +207,8 @@ public class HackReceiver extends BroadcastReceiver
             {
                 if (distance < 40f)
                 {
-                    if (distance < closestDistance) {
+                    if (distance < closestDistance)
+                    {
                         closestHack = h;
                     }
                 }
@@ -220,7 +226,8 @@ public class HackReceiver extends BroadcastReceiver
         return timeUntil;
     }
 
-    private boolean hasNonZeroHackCount() {
+    private boolean hasNonZeroHackCount()
+    {
         return hackCount > 0;
     }
 
@@ -233,7 +240,10 @@ public class HackReceiver extends BroadcastReceiver
             boolean hasCollapsePanelsMethod = false;
             for (Method method : statusbarManager.getMethods())
             {
-                if ("collapsePanels".equals(method.getName())) hasCollapsePanelsMethod = true;
+                if ("collapsePanels".equals(method.getName()))
+                {
+                    hasCollapsePanelsMethod = true;
+                }
             }
             if (hasCollapsePanelsMethod)
             {
@@ -264,11 +274,9 @@ public class HackReceiver extends BroadcastReceiver
 
     private void schedNext(final Context context)
     {
-        AlarmManager am = (AlarmManager) context
-                .getSystemService(Context.ALARM_SERVICE);
+        AlarmManager am = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
 
-        PowerManager pm = (PowerManager) context
-                .getSystemService(Context.POWER_SERVICE);
+        PowerManager pm = (PowerManager)context.getSystemService(Context.POWER_SERVICE);
 
         long t = SystemClock.elapsedRealtime() + (pm.isScreenOn() ? 1000 : 5000);
 
