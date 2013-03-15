@@ -24,7 +24,7 @@ public class MainActivity extends Activity
         Log.i(TAG, "onCreate");
 
         Intent i = new Intent(getBaseContext(), LocationLockService.class);
-        i.setAction("org.nsdev.ingresstoolbelt.lockgps");
+        i.setAction(LocationLockService.ACTION_LOCKGPS);
         startService(i);
 
         HackReceiver.trigger(getBaseContext());

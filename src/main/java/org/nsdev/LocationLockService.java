@@ -22,6 +22,7 @@ import java.util.Date;
  */
 public class LocationLockService extends Service
 {
+    public static final String ACTION_LOCKGPS = "org.nsdev.ingresstoolbelt.lockgps";
     private Looper mServiceLooper;
     private ServiceHandler mServiceHandler;
     private static Location currentLocation;
@@ -166,7 +167,7 @@ public class LocationLockService extends Service
         // start ID so we know which request we're stopping when we finish the job
         Message msg = mServiceHandler.obtainMessage();
         msg.arg1 = startId;
-        msg.arg2 = ("org.nsdev.ingresstoolbelt.lockgps".equals(intent.getAction())) ? 1 : 0;
+        msg.arg2 = (ACTION_LOCKGPS.equals(intent.getAction())) ? 1 : 0;
         mServiceHandler.sendMessage(msg);
 
         // If we get killed, after returning from here, restart

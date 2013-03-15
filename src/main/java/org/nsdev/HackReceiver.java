@@ -15,7 +15,6 @@ import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
-import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.List;
 
@@ -25,6 +24,9 @@ import java.util.List;
 public class HackReceiver extends BroadcastReceiver
 {
     private static final String TAG = "HackReceiver";
+    public static final String ACTION_DELETE = "org.nsdev.ingresstoolbelt.delete";
+    public static final String ACTION_HACK = "org.nsdev.ingresstoolbelt.hack";
+    public static final String ACTION_TRIGGER = "org.nsdev.ingresstoolbelt.trigger";
 
     private static long lastUpdate = 0L;
     private static int hackCount;
@@ -39,7 +41,7 @@ public class HackReceiver extends BroadcastReceiver
             new HackReceiver().updateNotification(context);
             lastUpdate = SystemClock.elapsedRealtime();
         }
-        context.sendBroadcast(new Intent("org.nsdev.ingresstoolbelt.trigger", null, context, HackReceiver.class));
+        context.sendBroadcast(new Intent(ACTION_TRIGGER, null, context, HackReceiver.class));
     }
 
     private boolean updateNotification(Context context)
@@ -51,7 +53,7 @@ public class HackReceiver extends BroadcastReceiver
                         new Intent(context, MainActivity.class),
                         PendingIntent.FLAG_CANCEL_CURRENT));
 
-        Intent deleteIntent = new Intent("org.nsdev.ingresstoolbelt.delete", null, context, HackReceiver.class);
+        Intent deleteIntent = new Intent(ACTION_DELETE, null, context, HackReceiver.class);
         b.setDeleteIntent(PendingIntent.getBroadcast(context, 0, deleteIntent, PendingIntent.FLAG_CANCEL_CURRENT));
 
 
@@ -63,7 +65,7 @@ public class HackReceiver extends BroadcastReceiver
         RemoteViews v = new RemoteViews(context.getPackageName(),
                 R.layout.notification);
 
-        Intent hack = new Intent("org.nsdev.ingresstoolbelt.hack", null, context, HackReceiver.class);
+        Intent hack = new Intent(ACTION_HACK, null, context, HackReceiver.class);
         v.setOnClickPendingIntent(R.id.btn_hack,
                 PendingIntent.getBroadcast(context, 0, hack, PendingIntent.FLAG_CANCEL_CURRENT));
 
@@ -108,7 +110,7 @@ public class HackReceiver extends BroadcastReceiver
     {
         String a = intent.getAction();
         Log.e(TAG, "onReceive(" + a + ")");
-        if (intent.getAction().equals("org.nsdev.ingresstoolbelt.delete"))
+        if (intent.getAction().equals(ACTION_DELETE))
         {
             Intent i = new Intent(context, LocationLockService.class);
             i.setAction(null);
@@ -119,7 +121,7 @@ public class HackReceiver extends BroadcastReceiver
             am.cancel(currentAlarm);
 
         }
-        else if (intent.getAction().equals("org.nsdev.ingresstoolbelt.hack"))
+        else if (intent.getAction().equals(ACTION_HACK))
         {
             if (LocationLockService.getCurrentLocation() != null)
             {
@@ -147,7 +149,7 @@ public class HackReceiver extends BroadcastReceiver
             }
 
         }
-        else if (intent.getAction().equals("org.nsdev.ingresstoolbelt.trigger"))
+        else if (intent.getAction().equals(ACTION_TRIGGER))
         {
             if (updateNotification(context))
             {
@@ -231,32 +233,6 @@ public class HackReceiver extends BroadcastReceiver
         return hackCount > 0;
     }
 
-    private void closeStatusBar(Context context)
-    {
-        try
-        {
-            Object statusBarService = context.getSystemService("statusbar");
-            Class<?> statusbarManager = Class.forName("android.app.StatusBarManager");
-            boolean hasCollapsePanelsMethod = false;
-            for (Method method : statusbarManager.getMethods())
-            {
-                if ("collapsePanels".equals(method.getName()))
-                {
-                    hasCollapsePanelsMethod = true;
-                }
-            }
-            if (hasCollapsePanelsMethod)
-            {
-                Method method = statusbarManager.getMethod("collapsePanels");
-                method.invoke(statusBarService);
-            }
-        }
-        catch (Exception ex)
-        {
-            Log.e(TAG, "Uh, yeah.", ex);
-        }
-    }
-
     private String formatTimeString(long ms)
     {
         long s = ms / 1000;
@@ -281,7 +257,7 @@ public class HackReceiver extends BroadcastReceiver
         long t = SystemClock.elapsedRealtime() + (pm.isScreenOn() ? 1000 : 5000);
 
         currentAlarm = PendingIntent.getBroadcast(
-                context, 9991, new Intent("org.nsdev.ingresstoolbelt.trigger", null, context, HackReceiver.class),
+                context, 9991, new Intent(ACTION_TRIGGER, null, context, HackReceiver.class),
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
         am.set(AlarmManager.ELAPSED_REALTIME, t, currentAlarm);
