@@ -8,6 +8,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.location.Location;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.PowerManager;
 import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
@@ -16,6 +18,7 @@ import android.widget.RemoteViews;
 import android.widget.Toast;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -27,24 +30,26 @@ public class HackReceiver extends BroadcastReceiver
     public static final String ACTION_DELETE = "org.nsdev.ingresstoolbelt.delete";
     public static final String ACTION_HACK = "org.nsdev.ingresstoolbelt.hack";
     public static final String ACTION_TRIGGER = "org.nsdev.ingresstoolbelt.trigger";
+    public static final String ACTION_ALARM = "org.nsdev.ingresstoolbelt.alarm";
 
     private static long lastUpdate = 0L;
     private static int hackCount;
     private static List<Hack> cachedHacks;
     static Object cacheLock = new Object();
     private static PendingIntent currentAlarm;
+    private static HashMap<Integer, PendingIntent> hackAlarms = new HashMap<Integer, PendingIntent>();
 
     public static void trigger(final Context context)
     {
         if (lastUpdate < SystemClock.elapsedRealtime() - 1000L)
         {
-            new HackReceiver().updateNotification(context);
+            new HackReceiver().updateNotification(context, false);
             lastUpdate = SystemClock.elapsedRealtime();
         }
         context.sendBroadcast(new Intent(ACTION_TRIGGER, null, context, HackReceiver.class));
     }
 
-    private boolean updateNotification(Context context)
+    private boolean updateNotification(Context context, boolean notifyWithSound)
     {
         NotificationCompat.Builder b = new NotificationCompat.Builder(context);
         b.setPriority(1000);
@@ -93,12 +98,15 @@ public class HackReceiver extends BroadcastReceiver
 
         boolean updated = hasNonZeroHackCount();
 
-        //b.setOngoing(updated);
-
+        if (notifyWithSound)
+        {
+            Uri defaultUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+            b.setSound(defaultUri);
+            b.setVibrate(new long[] {0, 2000, 1000, 2000});
+        }
         b.setContent(v);
 
         NotificationManager nm = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
-
         nm.notify(0, b.build());
 
         return updated;
@@ -117,8 +125,14 @@ public class HackReceiver extends BroadcastReceiver
             context.startService(i);
 
             AlarmManager am = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-
             am.cancel(currentAlarm);
+
+            for (PendingIntent pendingIntent : hackAlarms.values())
+            {
+                am.cancel(pendingIntent);
+            }
+
+            hackAlarms.clear();
 
         }
         else if (intent.getAction().equals(ACTION_HACK))
@@ -132,29 +146,36 @@ public class HackReceiver extends BroadcastReceiver
                 {
                     Toast.makeText(context, "Hack allowed in " + formatTimeString(timeUntilHackable(h)), Toast.LENGTH_LONG)
                          .show();
-                    //closeStatusBar(context);
                     return;
                 }
 
                 Hack hack = new Hack(currentLocation.getLatitude(), currentLocation.getLongitude(), new Date());
                 DatabaseManager.getInstance().save(hack);
+
                 Toast.makeText(context, "Hack location recorded.", Toast.LENGTH_LONG).show();
                 synchronized (cacheLock)
                 {
                     cachedHacks = null;
                 }
 
-                updateNotification(context);
+                // Create an alarm for this hack
+                createHackAlarm(context, hack);
+                updateNotification(context, false);
                 schedNext(context);
             }
 
         }
         else if (intent.getAction().equals(ACTION_TRIGGER))
         {
-            if (updateNotification(context))
+            if (updateNotification(context, false))
             {
                 schedNext(context);
             }
+        }
+        else if (intent.getAction().equals(ACTION_ALARM))
+        {
+            updateNotification(context, true);
+            hackAlarms.remove(intent.getIntExtra("hack_id", 0));
         }
         else
         {
@@ -261,6 +282,22 @@ public class HackReceiver extends BroadcastReceiver
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
         am.set(AlarmManager.ELAPSED_REALTIME, t, currentAlarm);
+    }
+
+    private void createHackAlarm(Context context, Hack hack)
+    {
+        AlarmManager am = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(ACTION_ALARM, null, context, HackReceiver.class);
+        intent.putExtra("hack_id", hack.getId());
+
+        PendingIntent hackAlarm = PendingIntent
+                .getBroadcast(context, hack.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        hackAlarms.put(hack.getId(), hackAlarm);
+
+        long t = SystemClock.elapsedRealtime() + 5 * 60 * 1000;
+
+        am.set(AlarmManager.ELAPSED_REALTIME, t, hackAlarm);
     }
 
 }
