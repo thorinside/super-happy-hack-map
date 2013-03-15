@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="org.nsdev"
+          android:versionCode="1"
+          android:versionName="0.5-SNAPSHOT">
+
+    <uses-sdk
+            android:minSdkVersion="8"
+            android:targetSdkVersion="16"/>
+
+    <uses-permission
+            android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission
+            android:name="android.permission.CHANGE_WIFI_STATE"/>
+    <uses-permission
+            android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission
+            android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission
+            android:name="android.permission.ACCESS_FINE_LOCATION"/>
+
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <uses-permission android:name="android.permission.VIBRATE"/>
+
+    <uses-permission android:name="android.permission.EXPAND_STATUS_BAR"/>
+
+
+    <application
+            android:icon="@drawable/icon"
+            android:label="@string/app_name"
+            android:name=".HackTimerApp">
+
+        <activity android:name=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
+        <service android:name=".LocationLockService"/>
+
+        <receiver android:name=".HackReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.SCREEN_OFF"/>
+                <action android:name="android.intent.action.SCREEN_ON"/>
+            </intent-filter>
+        </receiver>
+
+    </application>
+
+</manifest>
+
