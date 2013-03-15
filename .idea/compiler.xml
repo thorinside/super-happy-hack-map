@@ -31,7 +31,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="ingress-toolbelt" target="1.5" />
+      <module name="ingress-toolbelt" target="1.6" />
     </bytecodeTargetLevel>
   </component>
 </project>
