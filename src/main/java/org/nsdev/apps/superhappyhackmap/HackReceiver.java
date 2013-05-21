@@ -6,7 +6,6 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -63,9 +62,7 @@ public class HackReceiver extends BroadcastReceiver
 
 
         b.setContentTitle(context.getResources().getString(R.string.app_name));
-        b.setLargeIcon(BitmapFactory.decodeResource(context.getResources(),
-                R.drawable.ic_notification));
-        b.setSmallIcon(R.drawable.ic_notification);
+        b.setSmallIcon(R.drawable.ic_launcher);
         b.setAutoCancel(false);
         RemoteViews v = new RemoteViews(context.getPackageName(),
                 R.layout.notification);
