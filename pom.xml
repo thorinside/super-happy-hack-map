@@ -2,11 +2,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.nsdev</groupId>
-    <artifactId>ingress-toolbelt</artifactId>
+    <groupId>org.nsdev.apps</groupId>
+    <artifactId>super-happy-hack-map</artifactId>
     <version>0.5-SNAPSHOT</version>
     <packaging>apk</packaging>
-    <name>ingress-toolbelt</name>
+    <name>super-happy-hack-map</name>
 
     <properties>
         <platform.version>4.1.1.4</platform.version>

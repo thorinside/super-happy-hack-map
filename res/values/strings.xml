@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="hello">Hello ingress-toolbelt!</string>
-    <string name="app_name">ingress-toolbelt</string>
+    <string name="app_name">Super Happy Hack Map</string>
     <string name="btn_hack">Hack</string>
     <string name="hack">Hack</string>
 </resources>
