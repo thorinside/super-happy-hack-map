@@ -1,4 +1,4 @@
-package org.nsdev;
+package org.nsdev.apps.superhappyhackmap;
 
 import android.app.AlarmManager;
 import android.app.NotificationManager;
@@ -27,10 +27,10 @@ import java.util.List;
 public class HackReceiver extends BroadcastReceiver
 {
     private static final String TAG = "HackReceiver";
-    public static final String ACTION_DELETE = "org.nsdev.ingresstoolbelt.delete";
-    public static final String ACTION_HACK = "org.nsdev.ingresstoolbelt.hack";
-    public static final String ACTION_TRIGGER = "org.nsdev.ingresstoolbelt.trigger";
-    public static final String ACTION_ALARM = "org.nsdev.ingresstoolbelt.alarm";
+    public static final String ACTION_DELETE = "org.nsdev.superhappyhackmap.delete";
+    public static final String ACTION_HACK = "org.nsdev.superhappyhackmap.hack";
+    public static final String ACTION_TRIGGER = "org.nsdev.superhappyhackmap.trigger";
+    public static final String ACTION_ALARM = "org.nsdev.superhappyhackmap.alarm";
 
     private static long lastUpdate = 0L;
     private static int hackCount;
@@ -79,14 +79,14 @@ public class HackReceiver extends BroadcastReceiver
             Location currentLocation = LocationLockService.getCurrentLocation();
 
             Hack h = findNearestUnexpiredHack(currentLocation);
-            if (h != null)
+            if (h != null && h.timeUntilHackable() >= 0)
             {
                 float[] results = new float[3];
                 Location.distanceBetween(currentLocation.getLatitude(), currentLocation.getLongitude(), h
                         .getLatitude(), h.getLongitude(), results);
 
                 v.setTextViewText(R.id.text_timer, String
-                        .format("%.2f %s", results[0], formatTimeString(timeUntilHackable(h))));
+                        .format("%.2f %s", results[0], formatTimeString(h.timeUntilHackable())));
                 //v.setViewVisibility(R.id.btn_hack, View.INVISIBLE);
             }
             else
@@ -102,7 +102,7 @@ public class HackReceiver extends BroadcastReceiver
         {
             Uri defaultUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
             b.setSound(defaultUri);
-            b.setVibrate(new long[] {0, 2000, 1000, 2000});
+            b.setVibrate(new long[] {0, 200});
         }
         b.setContent(v);
 
@@ -142,14 +142,32 @@ public class HackReceiver extends BroadcastReceiver
                 Location currentLocation = LocationLockService.getCurrentLocation();
 
                 Hack h = findNearestUnexpiredHack(currentLocation);
-                if (h != null)
+                if (h != null && h.timeUntilHackable() > 0)
                 {
-                    Toast.makeText(context, "Hack allowed in " + formatTimeString(timeUntilHackable(h)), Toast.LENGTH_LONG)
-                         .show();
+                    Toast.makeText(context, "Hack allowed in " + formatTimeString(h
+                            .timeUntilHackable()), Toast.LENGTH_LONG).show();
                     return;
                 }
 
-                Hack hack = new Hack(currentLocation.getLatitude(), currentLocation.getLongitude(), new Date());
+                Hack hack;
+
+                if (h == null)
+                {
+                    hack = new Hack(currentLocation.getLatitude(), currentLocation
+                            .getLongitude(), new Date(), new Date());
+                }
+                else
+                {
+                    hack = h;
+                    if (hack.isBurnedOut() || hack.getHackCount() == 4)
+                    {
+                        // Burnout period expired, so reset the first hack time
+                        hack.setFirstHacked(new Date());
+                        hack.setHackCount(0);
+                    }
+                    hack.incrementHackCount();
+                    hack.setLastHacked(new Date());
+                }
                 DatabaseManager.getInstance().save(hack);
 
                 Toast.makeText(context, "Hack location recorded.", Toast.LENGTH_LONG).show();
@@ -157,6 +175,8 @@ public class HackReceiver extends BroadcastReceiver
                 {
                     cachedHacks = null;
                 }
+
+                HackTimerApp.getBus().post(new HackDatabaseUpdatedEvent());
 
                 // Create an alarm for this hack
                 createHackAlarm(context, hack);
@@ -176,6 +196,7 @@ public class HackReceiver extends BroadcastReceiver
         {
             updateNotification(context, true);
             hackAlarms.remove(intent.getIntExtra("hack_id", 0));
+            HackTimerApp.getBus().post(new HackDatabaseUpdatedEvent());
         }
         else
         {
@@ -214,9 +235,8 @@ public class HackReceiver extends BroadcastReceiver
                     .getLongitude(), results);
             float distance = results[0];
             Log.d(TAG, String.format("Distance: %.2f", distance));
-            long hackAge = now.getTime() - h.getTimestamp().getTime();
 
-            if (hackAge > 1000 * 60 * 5)
+            if (false && h.getHackCount() == 4 && h.timeUntilHackable() <= 0)
             {
                 Log.e(TAG, "Removing old hack.");
                 DatabaseManager.getInstance().deleteHack(h);
@@ -225,6 +245,8 @@ public class HackReceiver extends BroadcastReceiver
                     Log.d(TAG, "Dumping Cache");
                     cachedHacks = null;
                 }
+
+                HackTimerApp.getBus().post(new HackDatabaseUpdatedEvent());
             }
             else
             {
@@ -239,14 +261,6 @@ public class HackReceiver extends BroadcastReceiver
         }
 
         return closestHack;
-    }
-
-    private long timeUntilHackable(Hack h)
-    {
-        Date now = new Date();
-        long hackAge = now.getTime() - h.getTimestamp().getTime();
-        long timeUntil = (1000 * 60 * 5 - hackAge);
-        return timeUntil;
     }
 
     private boolean hasNonZeroHackCount()
@@ -295,7 +309,7 @@ public class HackReceiver extends BroadcastReceiver
 
         hackAlarms.put(hack.getId(), hackAlarm);
 
-        long t = SystemClock.elapsedRealtime() + 5 * 60 * 1000;
+        long t = SystemClock.elapsedRealtime() + hack.timeUntilHackable();
 
         am.set(AlarmManager.ELAPSED_REALTIME, t, hackAlarm);
     }

@@ -28,10 +28,12 @@
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="true" />
         <module name="ingress-toolbelt" />
+        <module name="super-happy-hack-app" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="ingress-toolbelt" target="1.6" />
+      <module name="super-happy-hack-app" target="1.6" />
     </bytecodeTargetLevel>
   </component>
 </project>

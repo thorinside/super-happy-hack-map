@@ -1,4 +1,4 @@
-package org.nsdev;
+package org.nsdev.apps.superhappyhackmap;
 
 import android.content.Context;
 
@@ -53,7 +53,7 @@ public class DatabaseManager
     {
         try
         {
-            getHelper().getHackDao().create(hack);
+            getHelper().getHackDao().createOrUpdate(hack);
         }
         catch (SQLException e)
         {

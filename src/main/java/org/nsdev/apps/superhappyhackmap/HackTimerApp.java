@@ -1,4 +1,4 @@
-package org.nsdev;
+package org.nsdev.apps.superhappyhackmap;
 
 import android.app.Application;
 import android.location.Location;
