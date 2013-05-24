@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+            android:id="@+id/menu_hack"
+            android:showAsAction="ifRoom|withText"
+            android:title="@string/hack">
+    </item>
+
+    <item
+            android:id="@+id/menu_burned"
+            android:showAsAction="ifRoom|withText"
+            android:title="@string/burned">
+    </item>
+
+    <item
+            android:id="@+id/menu_delete"
+            android:showAsAction="ifRoom|withText"
+            android:title="@string/delete">
+    </item>
+
+</menu>

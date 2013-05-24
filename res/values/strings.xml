@@ -4,4 +4,9 @@
     <string name="app_name">Super Happy Hack Map</string>
     <string name="btn_hack">Hack</string>
     <string name="hack">Hack</string>
+    <string name="burned">Burned</string>
+    <string name="delete">Delete</string>
+    <string name="forced_hack">Forced hack.</string>
+    <string name="hack_location_recorded">Hack location recorded.</string>
+    <string name="hack_allowed_in">Hack allowed in %s</string>
 </resources>

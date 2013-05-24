@@ -1,6 +1,13 @@
 package org.nsdev.apps.superhappyhackmap;
 
 import android.content.Context;
+import com.google.android.gms.maps.model.LatLng;
+import com.j256.ormlite.stmt.PreparedQuery;
+import com.j256.ormlite.stmt.QueryBuilder;
+import com.j256.ormlite.stmt.StatementBuilder;
+import com.j256.ormlite.support.CompiledStatement;
+import com.j256.ormlite.support.DatabaseConnection;
+import com.j256.ormlite.support.DatabaseResults;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -71,5 +78,42 @@ public class DatabaseManager
         {
             e.printStackTrace();
         }
+    }
+
+    public Hack findHackAt(LatLng center)
+    {
+        List<Hack> hacks = null;
+        try
+        {
+            QueryBuilder<Hack,Integer> queryBuilder = getHelper().getHackDao().queryBuilder();
+
+            PreparedQuery<Hack> preparedQuery = queryBuilder.where()
+                                                      .between(Hack.LATITUDE_FIELD_NAME, center.latitude - 0.000001, center.latitude + 0.000001)
+                                                      .and()
+                                                      .between(Hack.LONGITUDE_FIELD_NAME, center.longitude - 0.000001, center.longitude + 0.000001)
+                                                      .prepare();
+
+            Hack hack = getHelper().getHackDao().queryForFirst(preparedQuery);
+
+            return hack;
+        }
+        catch (SQLException e)
+        {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public Hack findHackById(int hackId)
+    {
+        try
+        {
+            return getHelper().getHackDao().queryForId(hackId);
+        }
+        catch (SQLException e)
+        {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

@@ -17,10 +17,12 @@ public class Hack
     @DatabaseField(generatedId = true)
     private int id;
 
-    @DatabaseField
+    public static final String LATITUDE_FIELD_NAME = "latitude";
+    @DatabaseField(columnName = LATITUDE_FIELD_NAME)
     private double latitude;
 
-    @DatabaseField
+    public static final String LONGITUDE_FIELD_NAME = "longitude";
+    @DatabaseField(columnName = LONGITUDE_FIELD_NAME)
     private double longitude;
 
     @DatabaseField

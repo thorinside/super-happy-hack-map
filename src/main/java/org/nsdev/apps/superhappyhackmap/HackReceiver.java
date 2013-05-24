@@ -60,7 +60,6 @@ public class HackReceiver extends BroadcastReceiver
         Intent deleteIntent = new Intent(ACTION_DELETE, null, context, HackReceiver.class);
         b.setDeleteIntent(PendingIntent.getBroadcast(context, 0, deleteIntent, PendingIntent.FLAG_CANCEL_CURRENT));
 
-
         b.setContentTitle(context.getResources().getString(R.string.app_name));
         b.setSmallIcon(R.drawable.ic_launcher);
         b.setAutoCancel(false);
@@ -99,7 +98,7 @@ public class HackReceiver extends BroadcastReceiver
         {
             Uri defaultUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
             b.setSound(defaultUri);
-            b.setVibrate(new long[] {0, 200});
+            b.setVibrate(new long[] {0, 2000});
         }
         b.setContent(v);
 
@@ -138,11 +137,20 @@ public class HackReceiver extends BroadcastReceiver
             {
                 Location currentLocation = LocationLockService.getCurrentLocation();
 
-                Hack h = findNearestUnexpiredHack(currentLocation);
-                if (h != null && h.timeUntilHackable() > 0)
+                int hackId = intent.getIntExtra("hack_id", -1);
+                boolean forced = intent.getBooleanExtra("force", false);
+
+                Hack h = null;
+
+                if (hackId != -1)
+                    h = DatabaseManager.getInstance().findHackById(hackId);
+                else
+                    h = findNearestUnexpiredHack(currentLocation);
+
+                if (h != null && h.timeUntilHackable() > 0 && !forced)
                 {
-                    Toast.makeText(context, "Hack allowed in " + formatTimeString(h
-                            .timeUntilHackable()), Toast.LENGTH_LONG).show();
+                    Toast.makeText(context, String.format(context.getString(R.string.hack_allowed_in), formatTimeString(h
+                            .timeUntilHackable())), Toast.LENGTH_LONG).show();
                     return;
                 }
 
@@ -156,7 +164,7 @@ public class HackReceiver extends BroadcastReceiver
                 else
                 {
                     hack = h;
-                    if (hack.isBurnedOut() || hack.getHackCount() == 4)
+                    if (!forced && (hack.isBurnedOut() || hack.getHackCount() == 4))
                     {
                         // Burnout period expired, so reset the first hack time
                         hack.setFirstHacked(new Date());
@@ -167,7 +175,14 @@ public class HackReceiver extends BroadcastReceiver
                 }
                 DatabaseManager.getInstance().save(hack);
 
-                Toast.makeText(context, "Hack location recorded.", Toast.LENGTH_LONG).show();
+                if (forced)
+                {
+                    Toast.makeText(context, context.getString(R.string.forced_hack), Toast.LENGTH_SHORT).show();
+                }
+                else
+                {
+                    Toast.makeText(context, context.getString(R.string.hack_location_recorded), Toast.LENGTH_SHORT).show();
+                }
                 synchronized (cacheLock)
                 {
                     cachedHacks = null;
@@ -191,8 +206,20 @@ public class HackReceiver extends BroadcastReceiver
         }
         else if (intent.getAction().equals(ACTION_ALARM))
         {
-            updateNotification(context, true);
-            hackAlarms.remove(intent.getIntExtra("hack_id", 0));
+            boolean withSound = intent.getBooleanExtra("sound", true);
+            boolean userDeleted = intent.getBooleanExtra("userDeleted", false);
+            updateNotification(context, withSound);
+            int hackId = intent.getIntExtra("hack_id", 0);
+            if (userDeleted)
+            {
+                AlarmManager am = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+                am.cancel(hackAlarms.get(hackId));
+                synchronized(cacheLock)
+                {
+                    cachedHacks = null;
+                }
+            }
+            hackAlarms.remove(hackId);
             HackTimerApp.getBus().post(new HackDatabaseUpdatedEvent());
         }
         else

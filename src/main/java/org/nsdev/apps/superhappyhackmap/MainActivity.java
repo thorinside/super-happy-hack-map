@@ -6,8 +6,10 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -21,6 +23,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends FragmentActivity
@@ -105,10 +108,120 @@ public class MainActivity extends FragmentActivity
                 }
             });
 
+            map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+                @Override
+                public void onMapClick(LatLng latLng)
+                {
+                    if (selectedCircleActionMode != null) return;
+
+                    // Find the hack that was tapped
+                    List<Circle> tappedCircles = findTappedCircles(latLng.latitude, latLng.longitude);
+
+                    if (tappedCircles.size() > 0)
+                    {
+                        selectedCircleActionMode = new SelectedCircleActionMode();
+                        selectedCircleActionMode.setCircles(tappedCircles);
+
+                        startActionMode(selectedCircleActionMode);
+                    }
+                }
+            });
+
             //LocationInfo location = new LocationInfo(this.getBaseContext());
         }
 
         HackReceiver.trigger(getBaseContext());
+    }
+
+    SelectedCircleActionMode selectedCircleActionMode = null;
+
+    @Override
+    public void onActionModeFinished(ActionMode mode)
+    {
+        selectedCircleActionMode = null;
+        super.onActionModeFinished(mode);
+        if (mode.equals(selectedCircleActionMode))
+        {
+            selectedCircleActionMode = null;
+        }
+    }
+
+    private List<Circle> findTappedCircles(double latitude, double longitude)
+    {
+
+        ArrayList<Circle> circleList = new ArrayList<Circle>();
+
+        for (Circle c : circles)
+        {
+            float[] results = new float[3];
+            Location.distanceBetween(latitude, longitude, c.getCenter().latitude, c.getCenter().longitude, results);
+            if (results[0] <= c.getRadius())
+                circleList.add(c);
+        }
+
+        return circleList;
+    }
+
+    @Subscribe
+    public void onCirclesDeleted(CirclesDeletedEvent evt)
+    {
+        for (Circle c : evt.getCircles())
+        {
+            LatLng center = c.getCenter();
+            Hack h = DatabaseManager.getInstance().findHackAt(center);
+
+            Intent intent = new Intent(HackReceiver.ACTION_ALARM, null, getBaseContext(), HackReceiver.class);
+            intent.putExtra("hack_id", h.getId());
+            intent.putExtra("sound", false);
+            intent.putExtra("userDeleted", true);
+
+            DatabaseManager.getInstance().deleteHack(h);
+
+            sendBroadcast(intent);
+        }
+    }
+
+    @Subscribe
+    public void onCirclesHacked(CirclesHackedEvent evt)
+    {
+        for (Circle c : evt.getCircles())
+        {
+            LatLng center = c.getCenter();
+            Hack h = DatabaseManager.getInstance().findHackAt(center);
+
+            Intent intent = new Intent(HackReceiver.ACTION_ALARM, null, getBaseContext(), HackReceiver.class);
+            intent.putExtra("hack_id", h.getId());
+            intent.putExtra("sound", false);
+            intent.putExtra("userDeleted", true);
+
+            sendBroadcast(intent);
+
+            intent = new Intent(HackReceiver.ACTION_HACK, null, getBaseContext(), HackReceiver.class);
+            intent.putExtra("hack_id", h.getId());
+            intent.putExtra("force", true);
+
+            sendBroadcast(intent);
+        }
+    }
+
+    @Subscribe
+    public void onCirclesBurned(CirclesBurnedEvent evt)
+    {
+        for (Circle c : evt.getCircles())
+        {
+            LatLng center = c.getCenter();
+            Hack h = DatabaseManager.getInstance().findHackAt(center);
+            h.setHackCount(4);
+
+            Intent intent = new Intent(HackReceiver.ACTION_ALARM, null, getBaseContext(), HackReceiver.class);
+            intent.putExtra("hack_id", h.getId());
+            intent.putExtra("sound", false);
+            intent.putExtra("userDeleted", true);
+
+            DatabaseManager.getInstance().save(h);
+
+            sendBroadcast(intent);
+        }
     }
 
     @Subscribe
