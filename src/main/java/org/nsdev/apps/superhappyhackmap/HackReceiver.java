@@ -12,7 +12,6 @@ import android.net.Uri;
 import android.os.PowerManager;
 import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
@@ -25,6 +24,7 @@ import java.util.List;
  */
 public class HackReceiver extends BroadcastReceiver
 {
+    private static final boolean DEBUG = false;
     private static final String TAG = "HackReceiver";
     public static final String ACTION_DELETE = "org.nsdev.superhappyhackmap.delete";
     public static final String ACTION_HACK = "org.nsdev.superhappyhackmap.hack";
@@ -113,7 +113,6 @@ public class HackReceiver extends BroadcastReceiver
     public void onReceive(Context context, Intent intent)
     {
         String a = intent.getAction();
-        Log.e(TAG, "onReceive(" + a + ")");
         if (intent.getAction().equals(ACTION_DELETE))
         {
             Intent i = new Intent(context, LocationLockService.class);
@@ -143,14 +142,19 @@ public class HackReceiver extends BroadcastReceiver
                 Hack h = null;
 
                 if (hackId != -1)
+                {
                     h = DatabaseManager.getInstance().findHackById(hackId);
+                }
                 else
+                {
                     h = findNearestUnexpiredHack(currentLocation);
+                }
 
                 if (h != null && h.timeUntilHackable() > 0 && !forced)
                 {
-                    Toast.makeText(context, String.format(context.getString(R.string.hack_allowed_in), formatTimeString(h
-                            .timeUntilHackable())), Toast.LENGTH_LONG).show();
+                    Toast.makeText(context, String
+                            .format(context.getString(R.string.hack_allowed_in), formatTimeString(h
+                                    .timeUntilHackable())), Toast.LENGTH_LONG).show();
                     return;
                 }
 
@@ -181,7 +185,8 @@ public class HackReceiver extends BroadcastReceiver
                 }
                 else
                 {
-                    Toast.makeText(context, context.getString(R.string.hack_location_recorded), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, context.getString(R.string.hack_location_recorded), Toast.LENGTH_SHORT)
+                         .show();
                 }
                 synchronized (cacheLock)
                 {
@@ -214,7 +219,7 @@ public class HackReceiver extends BroadcastReceiver
             {
                 AlarmManager am = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
                 am.cancel(hackAlarms.get(hackId));
-                synchronized(cacheLock)
+                synchronized (cacheLock)
                 {
                     cachedHacks = null;
                 }
@@ -224,7 +229,10 @@ public class HackReceiver extends BroadcastReceiver
         }
         else
         {
-            Log.e(TAG, "Got: " + intent.getAction());
+            if (DEBUG)
+            {
+                Log.e(TAG, "Got: " + intent.getAction());
+            }
         }
     }
 
@@ -237,12 +245,18 @@ public class HackReceiver extends BroadcastReceiver
         {
             if (cachedHacks != null)
             {
-                Log.d(TAG, "Using cached hacks.");
+                if (DEBUG)
+                {
+                    Log.d(TAG, "Using cached hacks.");
+                }
                 hacks = cachedHacks;
             }
             else
             {
-                Log.d(TAG, "Loading hacks from database.");
+                if (DEBUG)
+                {
+                    Log.d(TAG, "Loading hacks from database.");
+                }
                 hacks = DatabaseManager.getInstance().getAllHacks();
                 cachedHacks = hacks;
             }
@@ -258,15 +272,24 @@ public class HackReceiver extends BroadcastReceiver
             Location.distanceBetween(currentLocation.getLatitude(), currentLocation.getLongitude(), h.getLatitude(), h
                     .getLongitude(), results);
             float distance = results[0];
-            Log.d(TAG, String.format("Distance: %.2f", distance));
+            if (DEBUG)
+            {
+                Log.d(TAG, String.format("Distance: %.2f", distance));
+            }
 
             if (false && h.getHackCount() == 4 && h.timeUntilHackable() <= 0)
             {
-                Log.e(TAG, "Removing old hack.");
+                if (DEBUG)
+                {
+                    Log.e(TAG, "Removing old hack.");
+                }
                 DatabaseManager.getInstance().deleteHack(h);
                 synchronized (cacheLock)
                 {
-                    Log.d(TAG, "Dumping Cache");
+                    if (DEBUG)
+                    {
+                        Log.d(TAG, "Dumping Cache");
+                    }
                     cachedHacks = null;
                 }
 

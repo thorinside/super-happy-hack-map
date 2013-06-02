@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.location.Location;
 import android.os.*;
 import android.os.Process;
-import android.util.Log;
 import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;

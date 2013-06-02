@@ -5,11 +5,9 @@ import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -23,7 +21,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends FragmentActivity
@@ -108,11 +105,15 @@ public class MainActivity extends FragmentActivity
                 }
             });
 
-            map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            map.setOnMapClickListener(new GoogleMap.OnMapClickListener()
+            {
                 @Override
                 public void onMapClick(LatLng latLng)
                 {
-                    if (selectedCircleActionMode != null) return;
+                    if (selectedCircleActionMode != null)
+                    {
+                        return;
+                    }
 
                     // Find the hack that was tapped
                     List<Circle> tappedCircles = findTappedCircles(latLng.latitude, latLng.longitude);
@@ -156,7 +157,9 @@ public class MainActivity extends FragmentActivity
             float[] results = new float[3];
             Location.distanceBetween(latitude, longitude, c.getCenter().latitude, c.getCenter().longitude, results);
             if (results[0] <= c.getRadius())
+            {
                 circleList.add(c);
+            }
         }
 
         return circleList;
