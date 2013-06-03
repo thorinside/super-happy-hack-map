@@ -54,6 +54,8 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".SettingsActivity"/>
+
         <service android:name=".LocationLockService"/>
 
         <receiver android:name=".HackReceiver">

@@ -125,4 +125,26 @@ public class Hack
             return (FIVE_MINUTES_MS - hackAge);
         }
     }
+
+    public int getMaxWait()
+    {
+        if (isBurnedOut())
+        {
+            return FOUR_HOURS_MS;
+        }
+        else
+        {
+            return FIVE_MINUTES_MS;
+        }
+    }
+
+    public int getWait()
+    {
+        return (int)timeUntilHackable();
+    }
+
+    public boolean isHackable()
+    {
+        return !isBurnedOut() && timeUntilHackable() <= 0;
+    }
 }

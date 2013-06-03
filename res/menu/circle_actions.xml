@@ -4,19 +4,22 @@
 
     <item
             android:id="@+id/menu_hack"
-            android:showAsAction="ifRoom|withText"
+            android:icon="@drawable/ic_location_place"
+            android:showAsAction="always|withText"
             android:title="@string/hack">
     </item>
 
     <item
             android:id="@+id/menu_burned"
-            android:showAsAction="ifRoom|withText"
+            android:icon="@drawable/ic_menu_burn"
+            android:showAsAction="always|withText"
             android:title="@string/burned">
     </item>
 
     <item
             android:id="@+id/menu_delete"
-            android:showAsAction="ifRoom|withText"
+            android:icon="@drawable/ic_content_discard"
+            android:showAsAction="always|withText"
             android:title="@string/delete">
     </item>
 

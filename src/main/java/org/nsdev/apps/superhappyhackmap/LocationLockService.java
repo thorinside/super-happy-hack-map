@@ -15,7 +15,6 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -26,9 +25,11 @@ import java.util.List;
  */
 public class LocationLockService extends Service
 {
-    public static final String ACTION_LOCKGPS = "org.nsdev.apps.superhappyhackmap.lockgps";
-    public static final String ACTION_FENCEUPDATE = "org.nsdev.apps.superhappyhackmap.fenceupdate";
-    public static final String ACTION_HACK = "org.nsdev.apps.ingresstollbelt.hack";
+    private static final String TAG = "LocationLockService";
+
+    public static final String ACTION_MONITOR_LOCATION = "org.nsdev.apps.superhappyhackmap.action.MONITOR_LOCATION";
+    public static final String ACTION_FENCEUPDATE = "org.nsdev.apps.superhappyhackmap.action.FENCE_UPDATE";
+    public static final String ACTION_HACK = "org.nsdev.apps.superhappyhackmap.action.HACK";
 
     private Looper mServiceLooper;
     private ServiceHandler mServiceHandler;
@@ -36,51 +37,6 @@ public class LocationLockService extends Service
     private LocationClient locationClient;
 
     private static Location currentLocation;
-
-    public static class Hack
-    {
-
-        private Date date;
-        private Location location;
-
-        public Hack(Date date, Location location)
-        {
-            this.date = date;
-            this.location = location;
-        }
-
-        public Date getDate()
-        {
-            return date;
-        }
-
-        public void setDate(Date date)
-        {
-            this.date = date;
-        }
-
-        public Location getLocation()
-        {
-            return location;
-        }
-
-        public void setLocation(Location location)
-        {
-            this.location = location;
-        }
-    }
-
-    private static ArrayList<Hack> hacks = new ArrayList<Hack>(15);
-
-    public static void addHack(Date date, Location location)
-    {
-        hacks.add(new Hack(date, location));
-    }
-
-    public static ArrayList<Hack> getHacks()
-    {
-        return hacks;
-    }
 
     private LocationListener locationListener = new LocationListener()
     {
@@ -128,14 +84,11 @@ public class LocationLockService extends Service
                             request.setInterval(5000);
 
                             locationClient.requestLocationUpdates(request, locationListener);
-
-                            Toast.makeText(LocationLockService.this, "GPS Locked", Toast.LENGTH_SHORT).show();
                         }
 
                         @Override
                         public void onDisconnected()
                         {
-                            Toast.makeText(LocationLockService.this, "GPS Unlocked", Toast.LENGTH_SHORT).show();
                         }
                     }, new GooglePlayServicesClient.OnConnectionFailedListener()
                     {
@@ -211,18 +164,25 @@ public class LocationLockService extends Service
                             List<Geofence> triggerList =
                                     LocationClient.getTriggeringGeofences(intent);
 
-                            String[] triggerIds = new String[triggerList.size()];
+                            int[] triggerIds = new int[triggerList.size()];
 
                             for (int i = 0; i < triggerIds.length; i++)
                             {
                                 // Store the Id of each geofence
-                                triggerIds[i] = triggerList.get(i).getRequestId();
+                                triggerIds[i] = Integer.parseInt(triggerList.get(i).getRequestId());
                             }
                             /*
                              * At this point, you can store the IDs for further use
                              * display them, or display the details associated with
                              * them.
                              */
+
+                            Intent transitionIntent = new Intent(HackReceiver.ACTION_TRANSITION, null, getBaseContext(), HackReceiver.class);
+                            transitionIntent.putExtra("hacks", triggerIds);
+                            transitionIntent.putExtra("transitionType", transitionType);
+
+                            sendBroadcast(transitionIntent);
+
                         }
                         else
                         {
@@ -232,29 +192,48 @@ public class LocationLockService extends Service
                 }
 
                 case 3:
-                    Toast.makeText(LocationLockService.this, "Recording Hack Location", Toast.LENGTH_SHORT).show();
+                    Intent intent = (Intent)msg.getData().get("intent");
+                    double hackLatitude = intent.getDoubleExtra("hack_latitude", 0);
+                    double hackLongitude = intent.getDoubleExtra("hack_longitude", 0);
+                    int hack_id = intent.getIntExtra("hack_id", -1);
+                    boolean deleteHack = intent.getBooleanExtra("delete", false);
 
-                    Log.d("TAG", "Location Changed");
+                    if (hack_id == -1)
+                    {
+                        return;
+                    }
 
-                    Location location = locationClient.getLastLocation();
+                    if (deleteHack)
+                    {
+                        Log.d(TAG, "Removing fence for hack " + hack_id);
+
+                        ArrayList<String> fences = new ArrayList<String>();
+                        fences.add(String.format("%d", hack_id));
+                        locationClient.removeGeofences(fences, new LocationClient.OnRemoveGeofencesResultListener()
+                        {
+                            @Override
+                            public void onRemoveGeofencesByRequestIdsResult(int i, String[] strings)
+                            {
+                                Log.d(TAG, "Geofences Removed Result: " + i);
+                            }
+
+                            @Override
+                            public void onRemoveGeofencesByPendingIntentResult(int i, PendingIntent pendingIntent)
+                            {
+                            }
+                        });
+                        return;
+                    }
 
                     Geofence.Builder builder = new Geofence.Builder();
-                    builder.setCircularRegion(location.getLatitude(), location.getLongitude(), 40)
+                    builder.setCircularRegion(hackLatitude, hackLongitude, 40)
                            .setExpirationDuration(5 * 60 * 1000)
                            .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT)
-                           .setRequestId("ingress-toolbelt-0");
+                           .setRequestId(String.format("%d", hack_id));
                     Geofence fence = builder.build();
 
                     List<Geofence> fences = new ArrayList<Geofence>();
                     fences.add(fence);
-
-                    /*
-                    circleOptions = new CircleOptions()
-                            .center(new LatLng(location.getLatitude(), location.getLongitude()))
-                            .radius(40); // In meters
-
-                    map.addCircle(circleOptions);
-                    */
 
                     Intent i = new Intent(getBaseContext(), LocationLockService.class);
                     i.setAction(LocationLockService.ACTION_FENCEUPDATE);
@@ -266,7 +245,7 @@ public class LocationLockService extends Service
                         @Override
                         public void onAddGeofencesResult(int i, String[] strings)
                         {
-                            Log.d("TAG", "Result " + i);
+                            Log.d(TAG, "add Geofences Result " + i);
                         }
                     });
 
@@ -303,7 +282,7 @@ public class LocationLockService extends Service
         // start ID so we know which request we're stopping when we finish the job
         Message msg = mServiceHandler.obtainMessage();
         msg.arg1 = startId;
-        msg.arg2 = (ACTION_LOCKGPS.equals(intent.getAction())) ? 1 : 0;
+        msg.arg2 = (ACTION_MONITOR_LOCATION.equals(intent.getAction())) ? 1 : 0;
         if (ACTION_FENCEUPDATE.equals(intent.getAction()))
         {
             msg.arg2 = 2;
@@ -332,7 +311,10 @@ public class LocationLockService extends Service
     @Override
     public void onDestroy()
     {
-        locationClient.disconnect();
+        if (locationClient != null)
+        {
+            locationClient.disconnect();
+        }
     }
 
     static Location getCurrentLocation()

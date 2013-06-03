@@ -22,7 +22,7 @@
       <sourceFolder url="file://$MODULE_DIR$/com.google.android.gms_google-play-services_7/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/com.google.android.gms_google-play-services_7/gen" isTestSource="false" />
     </content>
-    <orderEntry type="jdk" jdkName="Maven Android 4.1.2 Platform" jdkType="Android SDK" />
+    <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.view.ActionMode;
 import android.view.Menu;
@@ -25,7 +26,6 @@ import java.util.List;
 
 public class MainActivity extends FragmentActivity
 {
-
     private static String TAG = "SHHM";
     private SupportMapFragment mapFragment;
 
@@ -49,6 +49,8 @@ public class MainActivity extends FragmentActivity
         Log.i(TAG, "onCreate");
 
         setContentView(R.layout.main);
+
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
         mapFragment = (SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.map);
 
@@ -74,7 +76,7 @@ public class MainActivity extends FragmentActivity
         }
 
         Intent i = new Intent(getBaseContext(), LocationLockService.class);
-        i.setAction(LocationLockService.ACTION_LOCKGPS);
+        i.setAction(LocationLockService.ACTION_MONITOR_LOCATION);
         startService(i);
 
         if (map != null)
@@ -178,9 +180,15 @@ public class MainActivity extends FragmentActivity
             intent.putExtra("sound", false);
             intent.putExtra("userDeleted", true);
 
-            DatabaseManager.getInstance().deleteHack(h);
+            // Delete the geofence as well now
+            Intent deleteFenceIntent = new Intent(LocationLockService.ACTION_HACK, null, getBaseContext(), LocationLockService.class);
+            deleteFenceIntent.putExtra("hack_id", h.getId());
+            deleteFenceIntent.putExtra("delete", true);
 
+            DatabaseManager.getInstance().deleteHack(h);
             sendBroadcast(intent);
+
+            startService(deleteFenceIntent);
         }
     }
 
@@ -307,6 +315,9 @@ public class MainActivity extends FragmentActivity
         {
             case R.id.menu_hack:
                 sendBroadcast(new Intent(HackReceiver.ACTION_HACK, null, getBaseContext(), HackReceiver.class));
+                return true;
+            case R.id.menu_settings:
+                startActivity(new Intent(getBaseContext(), SettingsActivity.class));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
