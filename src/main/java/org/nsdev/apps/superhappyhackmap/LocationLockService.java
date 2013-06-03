@@ -27,6 +27,7 @@ public class LocationLockService extends Service
 {
     private static final String TAG = "LocationLockService";
 
+    public static final String ACTION_STOP = "org.nsdev.apps.superhappyhackmap.action.STOP";
     public static final String ACTION_MONITOR_LOCATION = "org.nsdev.apps.superhappyhackmap.action.MONITOR_LOCATION";
     public static final String ACTION_FENCEUPDATE = "org.nsdev.apps.superhappyhackmap.action.FENCE_UPDATE";
     public static final String ACTION_HACK = "org.nsdev.apps.superhappyhackmap.action.HACK";
@@ -101,17 +102,6 @@ public class LocationLockService extends Service
                     );
 
                     locationClient.connect();
-
-
-                    /*
-                    LocationManager locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-
-                    Criteria criteria = new Criteria();
-                    criteria.setAccuracy(Criteria.ACCURACY_FINE);
-                    criteria.setCostAllowed(false);
-
-                    locationManager.requestLocationUpdates(1000L, 2f, criteria, mLocationListener, getLooper());
-                    */
 
                     break;
                 }
@@ -189,9 +179,11 @@ public class LocationLockService extends Service
                             // An invalid transition was reported
                         }
                     }
-                }
 
+                    break;
+                }
                 case 3:
+                {
                     Intent intent = (Intent)msg.getData().get("intent");
                     double hackLatitude = intent.getDoubleExtra("hack_latitude", 0);
                     double hackLongitude = intent.getDoubleExtra("hack_longitude", 0);
@@ -235,20 +227,24 @@ public class LocationLockService extends Service
                     List<Geofence> fences = new ArrayList<Geofence>();
                     fences.add(fence);
 
-                    Intent i = new Intent(getBaseContext(), LocationLockService.class);
-                    i.setAction(LocationLockService.ACTION_FENCEUPDATE);
+                    Intent i = new Intent(LocationLockService.ACTION_FENCEUPDATE, null, getBaseContext(), LocationLockService.class);
 
-                    PendingIntent pendingIntent = PendingIntent.getService(getBaseContext(), 0, i, 0);
-
-                    locationClient.addGeofences(fences, pendingIntent, new LocationClient.OnAddGeofencesResultListener()
+                    if (i != null)
                     {
-                        @Override
-                        public void onAddGeofencesResult(int i, String[] strings)
-                        {
-                            Log.d(TAG, "add Geofences Result " + i);
-                        }
-                    });
+                        PendingIntent pendingIntent = PendingIntent.getService(getBaseContext(), 0, i, 0);
 
+                        locationClient.addGeofences(fences, pendingIntent, new LocationClient.OnAddGeofencesResultListener()
+                        {
+                            @Override
+                            public void onAddGeofencesResult(int i, String[] strings)
+                            {
+                                Log.d(TAG, "add Geofences Result " + i);
+                            }
+                        });
+                    }
+
+                    break;
+                }
             }
         }
     }
@@ -282,8 +278,15 @@ public class LocationLockService extends Service
         // start ID so we know which request we're stopping when we finish the job
         Message msg = mServiceHandler.obtainMessage();
         msg.arg1 = startId;
-        msg.arg2 = (ACTION_MONITOR_LOCATION.equals(intent.getAction())) ? 1 : 0;
-        if (ACTION_FENCEUPDATE.equals(intent.getAction()))
+        if (ACTION_STOP.equals(intent.getAction()))
+        {
+            msg.arg2 = 0;
+        }
+        else if (ACTION_MONITOR_LOCATION.equals(intent.getAction()))
+        {
+            msg.arg2 = 1;
+        }
+        else if (ACTION_FENCEUPDATE.equals(intent.getAction()))
         {
             msg.arg2 = 2;
         }

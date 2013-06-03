@@ -158,8 +158,7 @@ public class HackReceiver extends BroadcastReceiver
     {
         if (intent.getAction().equals(ACTION_DELETE))
         {
-            Intent i = new Intent(context, LocationLockService.class);
-            i.setAction(null);
+            Intent i = new Intent(LocationLockService.ACTION_STOP, null, context, LocationLockService.class);
             context.startService(i);
 
             AlarmManager am = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
@@ -290,6 +289,8 @@ public class HackReceiver extends BroadcastReceiver
                 Location currentLocation = LocationLockService.getCurrentLocation();
 
                 Hack h = findNearestUnexpiredHack(currentLocation);
+
+                if (h == null) return;
 
                 AlarmManager am = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
                 am.cancel(currentAlarm);
