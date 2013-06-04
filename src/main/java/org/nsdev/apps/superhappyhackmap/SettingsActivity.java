@@ -12,6 +12,8 @@ public class SettingsActivity extends Activity
 
     public static final String PREF_TRACK_DISTANCE = "pref_track_distance";
     public static final String PREF_HIGH_PRIORITY = "pref_high_priority";
+    public static final String PREF_SHOW_NEXT_HACK_TIME = "pref_show_next_hack_time";
+    public static final String PREF_BUZZ_IF_HACKABLE = "pref_buzz_if_hackable";
 
     public static class SettingsFragment extends PreferenceFragment
     {

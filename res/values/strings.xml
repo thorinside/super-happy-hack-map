@@ -26,4 +26,8 @@
     <string name="hack_available">Hack Available</string>
     <string name="mark_burned_out">Mark as Burned</string>
     <string name="remembering_geofence">Remembering Geofence</string>
+    <string name="pref_show_next_hack_time">Show Hack Time</string>
+    <string name="pref_show_next_hack_time_summary">Show next hack time on hot and burned out zones.</string>
+    <string name="pref_buzz_if_hackable">Buzz if Hackable</string>
+    <string name="pref_buzz_if_hackable_summary">Buzz if you have entered a hackable zone.</string>
 </resources>

@@ -219,9 +219,9 @@ public class LocationLockService extends Service
 
                     Geofence.Builder builder = new Geofence.Builder();
                     builder.setCircularRegion(hackLatitude, hackLongitude, 40)
-                           .setExpirationDuration(5 * 60 * 1000)
-                           .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT)
-                           .setRequestId(String.format("%d", hack_id));
+                            .setExpirationDuration(24 * 60 * 60 * 1000)  // Expire a geofence in 24 hours
+                            .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT)
+                            .setRequestId(String.format("%d", hack_id));
                     Geofence fence = builder.build();
 
                     List<Geofence> fences = new ArrayList<Geofence>();
@@ -233,14 +233,15 @@ public class LocationLockService extends Service
                     {
                         PendingIntent pendingIntent = PendingIntent.getService(getBaseContext(), 0, i, 0);
 
-                        locationClient.addGeofences(fences, pendingIntent, new LocationClient.OnAddGeofencesResultListener()
-                        {
-                            @Override
-                            public void onAddGeofencesResult(int i, String[] strings)
-                            {
-                                Log.d(TAG, "add Geofences Result " + i);
-                            }
-                        });
+                        locationClient
+                                .addGeofences(fences, pendingIntent, new LocationClient.OnAddGeofencesResultListener()
+                                {
+                                    @Override
+                                    public void onAddGeofencesResult(int i, String[] strings)
+                                    {
+                                        Log.d(TAG, "add Geofences Result " + i);
+                                    }
+                                });
                     }
 
                     break;

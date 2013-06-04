@@ -1,8 +1,11 @@
 package org.nsdev.apps.superhappyhackmap;
 
+import android.content.Context;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -11,6 +14,8 @@ import java.util.Date;
 @DatabaseTable
 public class Hack
 {
+
+    private static final SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm:ss a");
     public static final int FOUR_HOURS_MS = 4 * 60 * 60 * 1000;
     public static final int FIVE_MINUTES_MS = 5 * 60 * 1000;
 
@@ -45,6 +50,21 @@ public class Hack
         this.longitude = longitude;
         this.firstHacked = firstHacked;
         this.lastHacked = lastHacked;
+    }
+
+    static String formatTimeString(long ms)
+    {
+        long s = ms / 1000;
+        if (s > 60)
+        {
+            long m = s / 60;
+            s = s - 60 * m;
+            return String.format("%d:%s", m, s < 10 ? "0" + s : "" + s);
+        }
+        else
+        {
+            return String.format("0:%s", s < 10 ? "0" + s : "" + s);
+        }
     }
 
     public double getLatitude()
@@ -146,5 +166,22 @@ public class Hack
     public boolean isHackable()
     {
         return !isBurnedOut() && timeUntilHackable() <= 0;
+    }
+
+    public String getNextHackableTimeString(Context context)
+    {
+        Calendar c = Calendar.getInstance();
+        if (isBurnedOut())
+        {
+            c.setTime(getFirstHacked());
+            c.add(Calendar.MILLISECOND, FOUR_HOURS_MS);
+        }
+        else
+        {
+            c.setTime(getLastHacked());
+            c.add(Calendar.MILLISECOND, FIVE_MINUTES_MS);
+        }
+
+        return timeFormat.format(c.getTime());
     }
 }

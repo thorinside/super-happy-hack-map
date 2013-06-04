@@ -1,7 +1,11 @@
 package org.nsdev.apps.superhappyhackmap;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.location.Location;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -15,10 +19,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.UiSettings;
-import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.Circle;
-import com.google.android.gms.maps.model.CircleOptions;
-import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.*;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
@@ -33,7 +34,9 @@ public class MainActivity extends FragmentActivity
     private CircleOptions circleOptions;
     private GoogleMap map;
     private ArrayList<Circle> circles = new ArrayList<Circle>();
+    private ArrayList<Marker> markers = new ArrayList<Marker>();
     private boolean hasZoomed = false;
+    private SharedPreferences preferences;
 
     /**
      * Called when the activity is first created.
@@ -51,6 +54,7 @@ public class MainActivity extends FragmentActivity
         setContentView(R.layout.main);
 
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+        preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         mapFragment = (SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.map);
 
@@ -104,6 +108,26 @@ public class MainActivity extends FragmentActivity
                 @Override
                 public void onCameraChange(CameraPosition cameraPosition)
                 {
+                    if (cameraPosition.zoom < 16)
+                    {
+                        for (Marker m : markers)
+                        {
+                            if (m.isVisible())
+                            {
+                                m.setVisible(false);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        for (Marker m : markers)
+                        {
+                            if (!m.isVisible())
+                            {
+                                m.setVisible(true);
+                            }
+                        }
+                    }
                 }
             });
 
@@ -127,6 +151,14 @@ public class MainActivity extends FragmentActivity
 
                         startActionMode(selectedCircleActionMode);
                     }
+                }
+            });
+
+            map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener()
+            {
+                public boolean onMarkerClick(Marker marker)
+                {
+                    return true;
                 }
             });
 
@@ -235,6 +267,8 @@ public class MainActivity extends FragmentActivity
         }
     }
 
+    Paint paint;
+
     @Subscribe
     public void onHackDatabaseUpdated(HackDatabaseUpdatedEvent evt)
     {
@@ -243,17 +277,25 @@ public class MainActivity extends FragmentActivity
             c.remove();
         }
 
+        for (Marker m : markers)
+        {
+            m.remove();
+        }
+
         circles.clear();
+        markers.clear();
 
         List<Hack> hacks = DatabaseManager.getInstance().getAllHacks();
         for (Hack h : hacks)
         {
             CircleOptions opts = new CircleOptions();
-            opts.center(new LatLng(h.getLatitude(), h.getLongitude()));
+            LatLng center = new LatLng(h.getLatitude(), h.getLongitude());
+            opts.center(center);
             opts.radius(40);
             opts.fillColor(Color.argb(64, 255, 0, 0));
             opts.strokeColor(Color.RED);
             opts.strokeWidth(2);
+            opts.zIndex(100);
 
             if (h.isBurnedOut())
             {
@@ -267,6 +309,36 @@ public class MainActivity extends FragmentActivity
             }
 
             circles.add(map.addCircle(opts));
+
+            // Display the next available hack time on the circles
+            if (h.isBurnedOut() || h.timeUntilHackable() > 0 && preferences
+                    .getBoolean(SettingsActivity.PREF_SHOW_NEXT_HACK_TIME, true))
+            {
+                Bitmap.Config conf = Bitmap.Config.ARGB_8888;
+                Bitmap bmp = Bitmap.createBitmap(200, 50, conf);
+                Canvas canvas = new Canvas(bmp);
+
+                if (paint == null)
+                {
+                    paint = new Paint();
+                    paint.setColor(Color.BLACK);
+                    paint.setDither(false);
+                    paint.setAntiAlias(true);
+                    paint.setTextSize(32);
+                    paint.setTextAlign(Paint.Align.CENTER);
+                    paint.setStrokeWidth(0.5f);
+                }
+
+                canvas.drawText(h
+                        .getNextHackableTimeString(this), 100, 50, paint); // paint defines the text color, stroke width, size
+                markers.add(map.addMarker(new MarkerOptions()
+                        .position(center)
+                        .title("test")
+                        .icon(BitmapDescriptorFactory.fromBitmap(bmp))
+                        .anchor(0.5f, 0.75f)
+                ));
+            }
+
         }
     }
 

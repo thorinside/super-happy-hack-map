@@ -13,4 +13,16 @@
             android:summary="@string/pref_high_priority_summary"
             android:defaultValue="true"/>
 
+    <CheckBoxPreference
+            android:key="pref_show_next_hack_time"
+            android:title="@string/pref_show_next_hack_time"
+            android:summary="@string/pref_show_next_hack_time_summary"
+            android:defaultValue="true"/>
+
+    <CheckBoxPreference
+            android:key="pref_buzz_if_hackable"
+            android:title="@string/pref_buzz_if_hackable"
+            android:summary="@string/pref_buzz_if_hackable_summary"
+            android:defaultValue="true"/>
+
 </PreferenceScreen>

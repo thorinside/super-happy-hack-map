@@ -12,6 +12,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.PowerManager;
 import android.os.SystemClock;
+import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.widget.Toast;
@@ -102,12 +103,12 @@ public class HackReceiver extends BroadcastReceiver
                             .getLatitude(), h.getLongitude(), results);
 
                     b.setContentTitle(String.format("%.2fm %s: %s", results[0], context
-                            .getString(R.string.hackable_in), formatTimeString(h.timeUntilHackable())));
+                            .getString(R.string.hackable_in), Hack.formatTimeString(h.timeUntilHackable())));
                 }
                 else
                 {
                     b.setContentTitle(String
-                            .format("%s: %s", context.getString(R.string.hackable_in), formatTimeString(h
+                            .format("%s: %s", context.getString(R.string.hackable_in), Hack.formatTimeString(h
                                     .timeUntilHackable())));
                 }
 
@@ -195,7 +196,7 @@ public class HackReceiver extends BroadcastReceiver
                 if (h != null && h.timeUntilHackable() > 0 && !forced)
                 {
                     Toast.makeText(context, String
-                            .format(context.getString(R.string.hack_allowed_in), formatTimeString(h
+                            .format(context.getString(R.string.hack_allowed_in), Hack.formatTimeString(h
                                     .timeUntilHackable())), Toast.LENGTH_LONG).show();
                     return;
                 }
@@ -290,7 +291,10 @@ public class HackReceiver extends BroadcastReceiver
 
                 Hack h = findNearestUnexpiredHack(currentLocation);
 
-                if (h == null) return;
+                if (h == null)
+                {
+                    return;
+                }
 
                 AlarmManager am = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
                 am.cancel(currentAlarm);
@@ -331,6 +335,15 @@ public class HackReceiver extends BroadcastReceiver
                         {
                             Toast.makeText(context.getApplicationContext(), context
                                     .getString(R.string.hack_available), Toast.LENGTH_SHORT);
+
+                            boolean buzz = PreferenceManager.getDefaultSharedPreferences(context)
+                                                            .getBoolean(SettingsActivity.PREF_BUZZ_IF_HACKABLE, true);
+
+                            if (buzz)
+                            {
+                                Vibrator vibrator = (Vibrator)context.getSystemService(Context.VIBRATOR_SERVICE);
+                                vibrator.vibrate(1000);
+                            }
                         }
                         else
                         {
@@ -426,21 +439,6 @@ public class HackReceiver extends BroadcastReceiver
     private boolean hasNonZeroHackCount()
     {
         return hackCount > 0;
-    }
-
-    private String formatTimeString(long ms)
-    {
-        long s = ms / 1000;
-        if (s > 60)
-        {
-            long m = s / 60;
-            s = s - 60 * m;
-            return String.format("%d:%s", m, s < 10 ? "0" + s : "" + s);
-        }
-        else
-        {
-            return String.format("0:%s", s < 10 ? "0" + s : "" + s);
-        }
     }
 
     private void schedNext(final Context context)
