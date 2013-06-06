@@ -30,8 +30,6 @@ public class MainActivity extends FragmentActivity
     private static String TAG = "SHHM";
     private SupportMapFragment mapFragment;
 
-    private boolean hackLocationSet = false;
-    private CircleOptions circleOptions;
     private GoogleMap map;
     private ArrayList<Circle> circles = new ArrayList<Circle>();
     private ArrayList<Marker> markers = new ArrayList<Marker>();
@@ -68,23 +66,20 @@ public class MainActivity extends FragmentActivity
             return;
         }
 
-        if (savedInstanceState != null)
-        {
-            Log.d("TAG", "Restoring instance state.");
-            hackLocationSet = savedInstanceState.getBoolean("hackLocationSet", false);
-            circleOptions = savedInstanceState.getParcelable("circle");
-            if (circleOptions != null && map != null)
-            {
-                map.addCircle(circleOptions);
-            }
-        }
-
         Intent i = new Intent(getBaseContext(), LocationLockService.class);
         i.setAction(LocationLockService.ACTION_MONITOR_LOCATION);
         startService(i);
 
         if (map != null)
         {
+            ComplexPreferences complexPreferences = ComplexPreferences.getComplexPreferences(this, "CAMERA_POS", MODE_PRIVATE);
+            CameraPosition pos = complexPreferences.getObject("cameraPosition", CameraPosition.class);
+            if (pos != null)
+            {
+                map.moveCamera(CameraUpdateFactory.newCameraPosition(pos));
+                hasZoomed = true;
+            }
+
             map.setMyLocationEnabled(true);
             UiSettings settings = map.getUiSettings();
             settings.setMyLocationButtonEnabled(true);
@@ -175,10 +170,6 @@ public class MainActivity extends FragmentActivity
     {
         selectedCircleActionMode = null;
         super.onActionModeFinished(mode);
-        if (mode.equals(selectedCircleActionMode))
-        {
-            selectedCircleActionMode = null;
-        }
     }
 
     private List<Circle> findTappedCircles(double latitude, double longitude)
@@ -343,12 +334,27 @@ public class MainActivity extends FragmentActivity
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState)
+    protected void onPause()
     {
-        Log.d("TAG", "Saving instance state.");
-        outState.putBoolean("hackLocationSet", hackLocationSet);
-        outState.putParcelable("circle", circleOptions);
-        super.onSaveInstanceState(outState);
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+    }
+
+    @Override
+    protected void onDestroy()
+    {
+        CameraPosition pos = map.getCameraPosition();
+
+        ComplexPreferences complexPreferences = ComplexPreferences.getComplexPreferences(this, "CAMERA_POS", MODE_PRIVATE);
+        complexPreferences.putObject("cameraPosition", pos);
+        complexPreferences.commit();
+
+        super.onDestroy();
     }
 
     @Override
