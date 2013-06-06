@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.location.Location;
 import android.os.*;
 import android.os.Process;
-import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.location.Geofence;
@@ -16,10 +15,11 @@ import com.google.android.gms.location.LocationRequest;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 /**
- * Service class that starts a listener for GPS location, which should keep the
- * GPS lock indefinitely while running.
+ * Service class that uses the Google Play Services location provider on NO_POWER mode and
+ * handles geofence operations.
  * <p/>
  * Created by neal 13-03-03 1:42 PM
  */
@@ -31,6 +31,14 @@ public class LocationLockService extends Service
     public static final String ACTION_MONITOR_LOCATION = "org.nsdev.apps.superhappyhackmap.action.MONITOR_LOCATION";
     public static final String ACTION_FENCEUPDATE = "org.nsdev.apps.superhappyhackmap.action.FENCE_UPDATE";
     public static final String ACTION_HACK = "org.nsdev.apps.superhappyhackmap.action.HACK";
+
+    private static final int MSG_STOP = 0;
+    private static final int MSG_START = 1;
+    private static final int MSG_FENCE_UPDATE = 2;
+    private static final int MSG_HACK = 3;
+
+    private static final int FASTEST_INTERVAL = 1000;
+    private static final int INTERVAL = 5000;
 
     private Looper mServiceLooper;
     private ServiceHandler mServiceHandler;
@@ -62,53 +70,19 @@ public class LocationLockService extends Service
         {
             switch (msg.arg2)
             {
-                case 0:
+                case MSG_STOP:
                 {
                     stopSelf(msg.arg1);
                     break;
                 }
-                case 1:
+                case MSG_START:
                 {
-                    if (locationClient != null)
-                    {
-                        return;
-                    }
-
-                    locationClient = new LocationClient(LocationLockService.this, new GooglePlayServicesClient.ConnectionCallbacks()
-                    {
-                        @Override
-                        public void onConnected(Bundle bundle)
-                        {
-                            LocationRequest request = LocationRequest.create();
-                            request.setPriority(LocationRequest.PRIORITY_NO_POWER);
-                            request.setFastestInterval(1000);
-                            request.setInterval(5000);
-
-                            locationClient.requestLocationUpdates(request, locationListener);
-                        }
-
-                        @Override
-                        public void onDisconnected()
-                        {
-                        }
-                    }, new GooglePlayServicesClient.OnConnectionFailedListener()
-                    {
-                        @Override
-                        public void onConnectionFailed(ConnectionResult connectionResult)
-                        {
-                            Log.e("TAG", "Connection failed.");
-                        }
-                    }
-                    );
-
-                    locationClient.connect();
+                    locationServiceConnect();
 
                     break;
                 }
-                case 2:
+                case MSG_FENCE_UPDATE:
                 {
-                    Toast.makeText(LocationLockService.this, "Fence Update", Toast.LENGTH_LONG).show();
-
                     Intent intent = (Intent)msg.getData().get("intent");
 
                     if (LocationClient.hasError(intent))
@@ -132,20 +106,6 @@ public class LocationLockService extends Service
                     {
                         // Get the type of transition (entry or exit)
                         int transitionType = LocationClient.getGeofenceTransition(intent);
-
-                        if (transitionType == Geofence.GEOFENCE_TRANSITION_ENTER)
-                        {
-                            Toast.makeText(LocationLockService.this, "Entered Zone", Toast.LENGTH_LONG).show();
-                        }
-                        else if (transitionType == Geofence.GEOFENCE_TRANSITION_EXIT)
-                        {
-                            Toast.makeText(LocationLockService.this, "Exited Zone", Toast.LENGTH_LONG).show();
-                        }
-                        else
-                        {
-                            Toast.makeText(LocationLockService.this, "Unknown transition " + transitionType, Toast.LENGTH_LONG)
-                                 .show();
-                        }
 
                         // Test that a valid transition was reported
                         if ((transitionType == Geofence.GEOFENCE_TRANSITION_ENTER)
@@ -182,7 +142,7 @@ public class LocationLockService extends Service
 
                     break;
                 }
-                case 3:
+                case MSG_HACK:
                 {
                     Intent intent = (Intent)msg.getData().get("intent");
                     double hackLatitude = intent.getDoubleExtra("hack_latitude", 0);
@@ -194,6 +154,10 @@ public class LocationLockService extends Service
                     {
                         return;
                     }
+
+                    locationServiceConnect();
+
+                    if (locationClient == null) return;
 
                     if (deleteHack)
                     {
@@ -233,20 +197,71 @@ public class LocationLockService extends Service
                     {
                         PendingIntent pendingIntent = PendingIntent.getService(getBaseContext(), 0, i, 0);
 
-                        locationClient
-                                .addGeofences(fences, pendingIntent, new LocationClient.OnAddGeofencesResultListener()
-                                {
-                                    @Override
-                                    public void onAddGeofencesResult(int i, String[] strings)
-                                    {
-                                        Log.d(TAG, "add Geofences Result " + i);
-                                    }
-                                });
+                        locationClient.addGeofences(fences, pendingIntent, new LocationClient.OnAddGeofencesResultListener()
+                        {
+                            @Override
+                            public void onAddGeofencesResult(int i, String[] strings)
+                            {
+                                Log.d(TAG, "add Geofences Result " + i);
+                            }
+                        });
                     }
 
                     break;
                 }
             }
+        }
+    }
+
+    private void locationServiceConnect()
+    {
+        if (locationClient != null)
+        {
+            return;
+        }
+
+        final CountDownLatch latch = new CountDownLatch(1);
+
+        locationClient = new LocationClient(this, new GooglePlayServicesClient.ConnectionCallbacks()
+        {
+            @Override
+            public void onConnected(Bundle bundle)
+            {
+                LocationRequest request = LocationRequest.create();
+                request.setPriority(LocationRequest.PRIORITY_NO_POWER);
+                request.setFastestInterval(FASTEST_INTERVAL);
+                request.setInterval(INTERVAL);
+
+                locationClient.requestLocationUpdates(request, locationListener);
+                latch.countDown();
+            }
+
+            @Override
+            public void onDisconnected()
+            {
+                locationClient = null;
+            }
+        }, new GooglePlayServicesClient.OnConnectionFailedListener()
+        {
+            @Override
+            public void onConnectionFailed(ConnectionResult connectionResult)
+            {
+                Log.e("TAG", "Connection failed.");
+                locationClient = null;
+                latch.countDown();
+            }
+        }
+        );
+
+        locationClient.connect();
+
+        try
+        {
+            latch.await();
+        }
+        catch (InterruptedException e)
+        {
+            e.printStackTrace();
         }
     }
 
@@ -277,23 +292,25 @@ public class LocationLockService extends Service
 
         // For each start request, send a message to start a job and deliver the
         // start ID so we know which request we're stopping when we finish the job
+
         Message msg = mServiceHandler.obtainMessage();
         msg.arg1 = startId;
+
         if (ACTION_STOP.equals(intent.getAction()))
         {
-            msg.arg2 = 0;
+            msg.arg2 = MSG_STOP;
         }
         else if (ACTION_MONITOR_LOCATION.equals(intent.getAction()))
         {
-            msg.arg2 = 1;
+            msg.arg2 = MSG_START;
         }
         else if (ACTION_FENCEUPDATE.equals(intent.getAction()))
         {
-            msg.arg2 = 2;
+            msg.arg2 = MSG_FENCE_UPDATE;
         }
         else if (ACTION_HACK.equals(intent.getAction()))
         {
-            msg.arg2 = 3;
+            msg.arg2 = MSG_HACK;
         }
 
         Bundle b = new Bundle();
@@ -318,6 +335,7 @@ public class LocationLockService extends Service
         if (locationClient != null)
         {
             locationClient.disconnect();
+            locationClient = null;
         }
     }
 
