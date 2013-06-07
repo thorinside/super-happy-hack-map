@@ -321,7 +321,7 @@ public class MainActivity extends FragmentActivity
                 }
 
                 canvas.drawText(h
-                        .getNextHackableTimeString(this), 100, 50, paint); // paint defines the text color, stroke width, size
+                        .getNextHackableTimeString(), 100, 50, paint); // paint defines the text color, stroke width, size
                 markers.add(map.addMarker(new MarkerOptions()
                         .position(center)
                         .title("test")

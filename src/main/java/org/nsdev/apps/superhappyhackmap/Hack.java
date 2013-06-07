@@ -114,6 +114,16 @@ public class Hack
 
     public void incrementHackCount()
     {
+        // If the last hack was more than four hours ago, reset the hack count and reset the
+        // first hacked timer.
+        Date now = new Date();
+        long sinceLastHack = now.getTime() - getLastHacked().getTime();
+        if (sinceLastHack > FOUR_HOURS_MS)
+        {
+            setFirstHacked(now);
+            setHackCount(0);
+        }
+
         setHackCount(getHackCount() + 1);
         if (hackCount > 4)
         {
@@ -168,7 +178,7 @@ public class Hack
         return !isBurnedOut() && timeUntilHackable() <= 0;
     }
 
-    public String getNextHackableTimeString(Context context)
+    public String getNextHackableTimeString()
     {
         Calendar c = Calendar.getInstance();
         if (isBurnedOut())
