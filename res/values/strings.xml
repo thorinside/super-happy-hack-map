@@ -31,4 +31,5 @@
     <string name="pref_buzz_if_hackable">Buzz if Hackable</string>
     <string name="pref_buzz_if_hackable_summary">Buzz if you have entered a hackable zone.</string>
     <string name="set_cooldown">Set Cooldown Time</string>
+    <string name="about">About</string>
 </resources>

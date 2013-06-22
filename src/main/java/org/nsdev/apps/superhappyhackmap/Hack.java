@@ -1,5 +1,6 @@
 package org.nsdev.apps.superhappyhackmap;
 
+import android.content.Context;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
@@ -211,7 +212,7 @@ public class Hack
         return !isBurnedOut() && timeUntilHackable() <= 0;
     }
 
-    public String getNextHackableTimeString()
+    public String getNextHackableTimeString(Context context)
     {
         Calendar c = Calendar.getInstance();
         if (isBurnedOut())
@@ -225,6 +226,6 @@ public class Hack
             c.add(Calendar.SECOND, getCoolDownSeconds());
         }
 
-        return timeFormat.format(c.getTime());
+        return android.text.format.DateFormat.getTimeFormat(context).format(c.getTime());
     }
 }

@@ -3,9 +3,7 @@ package org.nsdev.apps.superhappyhackmap;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.location.Location;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -20,7 +18,9 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.*;
+import com.google.maps.android.ui.BubbleIconFactory;
 import com.squareup.otto.Subscribe;
+import de.psdev.licensesdialog.LicensesDialogFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -103,7 +103,7 @@ public class MainActivity extends FragmentActivity
                 @Override
                 public void onCameraChange(CameraPosition cameraPosition)
                 {
-                    if (cameraPosition.zoom < 16)
+                    if (cameraPosition.zoom < 15)
                     {
                         for (Marker m : markers)
                         {
@@ -244,6 +244,7 @@ public class MainActivity extends FragmentActivity
         {
             LatLng center = c.getCenter();
             Hack h = DatabaseManager.getInstance().findHackAt(center);
+            h.setBurnedOut(false);
 
             Intent intent = new Intent(HackReceiver.ACTION_ALARM, null, getBaseContext(), HackReceiver.class);
             intent.putExtra("hack_id", h.getId());
@@ -255,6 +256,8 @@ public class MainActivity extends FragmentActivity
             intent = new Intent(HackReceiver.ACTION_HACK, null, getBaseContext(), HackReceiver.class);
             intent.putExtra("hack_id", h.getId());
             intent.putExtra("force", true);
+
+            DatabaseManager.getInstance().save(h);
 
             sendBroadcast(intent);
         }
@@ -279,8 +282,6 @@ public class MainActivity extends FragmentActivity
             sendBroadcast(intent);
         }
     }
-
-    Paint paint;
 
     @Subscribe
     public void onHackDatabaseUpdated(HackDatabaseUpdatedEvent evt)
@@ -327,26 +328,17 @@ public class MainActivity extends FragmentActivity
             if (h.isBurnedOut() || h.timeUntilHackable() > 0 && preferences
                     .getBoolean(SettingsActivity.PREF_SHOW_NEXT_HACK_TIME, true))
             {
-                Bitmap.Config conf = Bitmap.Config.ARGB_8888;
-                Bitmap bmp = Bitmap.createBitmap(200, 50, conf);
-                Canvas canvas = new Canvas(bmp);
 
-                if (paint == null)
-                {
-                    paint = new Paint();
-                    paint.setColor(Color.BLACK);
-                    paint.setDither(false);
-                    paint.setAntiAlias(true);
-                    paint.setTextSize(32);
-                    paint.setTextAlign(Paint.Align.CENTER);
-                    paint.setStrokeWidth(0.5f);
-                }
+                BubbleIconFactory factory = new BubbleIconFactory(this);
+                if (h.isBurnedOut())
+                    factory.setStyle(BubbleIconFactory.Style.DEFAULT);
+                else
+                    factory.setStyle(BubbleIconFactory.Style.RED);
+                factory.setContentRotation(90);
+                Bitmap bmp = factory.makeIcon(h.getNextHackableTimeString(this));
 
-                canvas.drawText(h
-                        .getNextHackableTimeString(), 100, 50, paint); // paint defines the text color, stroke width, size
                 markers.add(map.addMarker(new MarkerOptions()
                         .position(center)
-                        .title("test")
                         .icon(BitmapDescriptorFactory.fromBitmap(bmp))
                         .anchor(0.5f, 0.75f)
                 ));
@@ -418,6 +410,10 @@ public class MainActivity extends FragmentActivity
                 return true;
             case R.id.menu_settings:
                 startActivity(new Intent(getBaseContext(), SettingsActivity.class));
+                return true;
+            case R.id.menu_about:
+                final LicensesDialogFragment fragment = LicensesDialogFragment.newInstace(R.raw.notices, true);
+                fragment.show(getSupportFragmentManager(), null);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
