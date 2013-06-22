@@ -1,6 +1,5 @@
 package org.nsdev.apps.superhappyhackmap;
 
-import android.content.Context;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
@@ -11,13 +10,13 @@ import java.util.Date;
 /**
  * Created by neal 13-03-14 4:20 PM
  */
-@DatabaseTable
+@DatabaseTable(tableName = "Hack")
 public class Hack
 {
 
     private static final SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm:ss a");
     public static final int FOUR_HOURS_MS = 4 * 60 * 60 * 1000;
-    public static final int FIVE_MINUTES_MS = 5 * 60 * 1000;
+    public static final int FIVE_MINUTES_S = 5 * 60;
 
     @DatabaseField(generatedId = true)
     private int id;
@@ -30,14 +29,26 @@ public class Hack
     @DatabaseField(columnName = LONGITUDE_FIELD_NAME)
     private double longitude;
 
-    @DatabaseField
+    public static final String FIRST_HACKED_FIELD_NAME = "firstHacked";
+    @DatabaseField(columnName = FIRST_HACKED_FIELD_NAME)
     private Date firstHacked;
 
-    @DatabaseField
+    public static final String COOL_DOWN_SECONDS_FIELD_NAME = "coolDownSeconds";
+
+    @DatabaseField(columnName = COOL_DOWN_SECONDS_FIELD_NAME)
+    private int coolDownSeconds;
+
+    public static final String LAST_HACKED_FIELD_NAME = "lastHacked";
+    @DatabaseField(columnName = LAST_HACKED_FIELD_NAME)
     private Date lastHacked;
 
-    @DatabaseField
+    public static final String HACK_COUNT_FIELD_NAME = "hackCount";
+    @DatabaseField(columnName = HACK_COUNT_FIELD_NAME)
     private int hackCount;
+
+    public static final String BURNED_OUT_FIELD_NAME = "burnedOut";
+    @DatabaseField(columnName = BURNED_OUT_FIELD_NAME)
+    private boolean burnedOut;
 
     public Hack()
     {
@@ -50,6 +61,7 @@ public class Hack
         this.longitude = longitude;
         this.firstHacked = firstHacked;
         this.lastHacked = lastHacked;
+        this.setCoolDownSeconds(300);
     }
 
     static String formatTimeString(long ms)
@@ -112,6 +124,33 @@ public class Hack
         this.hackCount = hackCount;
     }
 
+    public int getCoolDownSeconds()
+    {
+        // Default to five minutes
+        if (coolDownSeconds == 0)
+            return FIVE_MINUTES_S;
+        return coolDownSeconds;
+    }
+
+    public void setCoolDownSeconds(int coolDownSeconds)
+    {
+        this.coolDownSeconds = coolDownSeconds;
+    }
+
+    public void setBurnedOut(boolean burnedOut)
+    {
+        this.burnedOut = burnedOut;
+    }
+
+    public boolean isBurnedOut()
+    {
+        Date now = new Date();
+        long burnoutLength = FOUR_HOURS_MS; // 4 hours in milliseconds
+        long sinceFirstHack = now.getTime() - getFirstHacked().getTime();
+        boolean shouldBeResetByNow = (burnoutLength - sinceFirstHack) <= 0;
+        return burnedOut && !shouldBeResetByNow;
+    }
+
     public void incrementHackCount()
     {
         // If the last hack was more than four hours ago, reset the hack count and reset the
@@ -125,21 +164,12 @@ public class Hack
         }
 
         setHackCount(getHackCount() + 1);
-        if (hackCount > 4)
-        {
-            hackCount = 4;
-        }
     }
 
-    public boolean isBurnedOut()
-    {
-        Date now = new Date();
-        long burnoutLength = FOUR_HOURS_MS; // 4 hours in milliseconds
-        long sinceFirstHack = now.getTime() - getFirstHacked().getTime();
-        boolean shouldBeResetByNow = (burnoutLength - sinceFirstHack) <= 0;
-        return hackCount == 4 && !shouldBeResetByNow;
-    }
-
+    /**
+     *
+     * @return the time, in ms, until this area is hackable.
+     */
     public long timeUntilHackable()
     {
         Date now = new Date();
@@ -152,10 +182,13 @@ public class Hack
         else
         {
             long hackAge = now.getTime() - getLastHacked().getTime();
-            return (FIVE_MINUTES_MS - hackAge);
+            return (getCoolDownSeconds() * 1000 - hackAge);
         }
     }
 
+    /**
+     * Return the Maximum wait time for this portal in MS
+     */
     public int getMaxWait()
     {
         if (isBurnedOut())
@@ -164,7 +197,7 @@ public class Hack
         }
         else
         {
-            return FIVE_MINUTES_MS;
+            return getCoolDownSeconds() * 1000;
         }
     }
 
@@ -189,7 +222,7 @@ public class Hack
         else
         {
             c.setTime(getLastHacked());
-            c.add(Calendar.MILLISECOND, FIVE_MINUTES_MS);
+            c.add(Calendar.SECOND, getCoolDownSeconds());
         }
 
         return timeFormat.format(c.getTime());

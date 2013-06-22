@@ -10,6 +10,13 @@
     </item>
 
     <item
+            android:id="@+id/menu_set_cooldown"
+            android:icon="@drawable/ic_menu_cooldown_time"
+            android:showAsAction="always|withText"
+            android:title="@string/set_cooldown">
+    </item>
+
+    <item
             android:id="@+id/menu_burned"
             android:icon="@drawable/ic_menu_burn"
             android:showAsAction="always|withText"

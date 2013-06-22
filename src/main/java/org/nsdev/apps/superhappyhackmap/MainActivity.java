@@ -141,8 +141,18 @@ public class MainActivity extends FragmentActivity
 
                     if (tappedCircles.size() > 0)
                     {
-                        selectedCircleActionMode = new SelectedCircleActionMode();
+                        selectedCircleActionMode = new SelectedCircleActionMode(getSupportFragmentManager());
                         selectedCircleActionMode.setCircles(tappedCircles);
+
+                        List<Hack> tappedHacks = new ArrayList<Hack>();
+                        for (Circle c : tappedCircles)
+                        {
+                            LatLng center = c.getCenter();
+                            Hack h = DatabaseManager.getInstance().findHackAt(center);
+                            tappedHacks.add(h);
+                        }
+
+                        selectedCircleActionMode.setHacks(tappedHacks);
 
                         startActionMode(selectedCircleActionMode);
                     }
@@ -188,6 +198,18 @@ public class MainActivity extends FragmentActivity
         }
 
         return circleList;
+    }
+
+    @Subscribe
+    public void onCirclesCoolDownTimeChanged(CirclesCoolDownTimeChangedEvent evt)
+    {
+        for (Hack h : evt.getHacks())
+        {
+            Intent intent = new Intent(HackReceiver.ACTION_SET_COOLDOWN, null, getBaseContext(), HackReceiver.class);
+            intent.putExtra("hack_id", h.getId());
+
+            sendBroadcast(intent);
+        }
     }
 
     @Subscribe
@@ -245,7 +267,7 @@ public class MainActivity extends FragmentActivity
         {
             LatLng center = c.getCenter();
             Hack h = DatabaseManager.getInstance().findHackAt(center);
-            h.setHackCount(4);
+            h.setBurnedOut(true);
 
             Intent intent = new Intent(HackReceiver.ACTION_ALARM, null, getBaseContext(), HackReceiver.class);
             intent.putExtra("hack_id", h.getId());

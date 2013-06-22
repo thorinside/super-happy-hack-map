@@ -13,11 +13,13 @@ import java.util.List;
 
 public class DatabaseHelper extends OrmLiteSqliteOpenHelper
 {
+    private static final String TAG = "SHHM-DB";
+
     // name of the database file for your application -- change to something appropriate for your app
     private static final String DATABASE_NAME = "SuperHappyHackMapDB.sqlite";
 
     // any time you make changes to your database objects, you may have to increase the database version
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 4;
 
     // the DAO object we use to access the SimpleData table
     private Dao<Hack, Integer> hackDao = null;
@@ -55,8 +57,16 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper
             switch (oldVersion)
             {
                 case 1:
-                    //allSql.add("alter table AdData add column `new_col` VARCHAR");
-                    //allSql.add("alter table AdData add column `new_col2` VARCHAR");
+                    Log.i(TAG, "Upgrading from database version 1");
+                    allSql.add("alter table Hack add column `runningHotSeconds` INTEGER");
+                case 2:
+                    Log.i(TAG, "Upgrading from database version 2");
+                    allSql.add("alter table Hack add column `burnedOut` INTEGER");
+                case 3:
+                    Log.i(TAG, "Upgrading from database version 3");
+                    allSql.add("create table Hack_tmp as select id, latitude, longitude, firstHacked, runningHotSeconds as coolDownSeconds, lastHacked, hackCount, burnedOut from Hack");
+                    allSql.add("drop table Hack");
+                    allSql.add("alter table Hack_tmp rename to Hack");
             }
             for (String sql : allSql)
             {

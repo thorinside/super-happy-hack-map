@@ -35,6 +35,7 @@ public class HackReceiver extends BroadcastReceiver
     public static final String ACTION_TRIGGER = "org.nsdev.superhappyhackmap.action.TRIGGER";
     public static final String ACTION_ALARM = "org.nsdev.superhappyhackmap.action.ALARM";
     public static final String ACTION_TRANSITION = "org.nsdev.superhappyhackmap.action.TRANSITION";
+    public static final String ACTION_SET_COOLDOWN = "org.nsdev.superhappyhackmap.action.SET_COOLDOWN";
 
     private static long lastUpdate = 0L;
     private static int hackCount;
@@ -81,6 +82,7 @@ public class HackReceiver extends BroadcastReceiver
         b.setAutoCancel(false);
 
         Intent hack = new Intent(ACTION_HACK, null, context, HackReceiver.class);
+        hack.putExtra("runningHotTime", 300);
         b.addAction(R.drawable.ic_location_place, context.getString(R.string.btn_hack), PendingIntent
                 .getBroadcast(context, 0, hack, PendingIntent.FLAG_CANCEL_CURRENT));
 
@@ -212,12 +214,6 @@ public class HackReceiver extends BroadcastReceiver
                 else
                 {
                     hack = h;
-                    if (!forced && (hack.isBurnedOut() || hack.getHackCount() == 4))
-                    {
-                        // Burnout period expired, so reset the first hack time
-                        hack.setFirstHacked(new Date());
-                        hack.setHackCount(0);
-                    }
                     hack.incrementHackCount();
                     hack.setLastHacked(new Date());
                 }
@@ -303,7 +299,7 @@ public class HackReceiver extends BroadcastReceiver
                 am.cancel(hackPendingIntent);
 
                 hackAlarms.remove(h.getId());
-                h.setHackCount(4);
+                h.setBurnedOut(true);
                 DatabaseManager.getInstance().save(h);
 
                 HackTimerApp.getBus().post(new HackDatabaseUpdatedEvent());
@@ -334,7 +330,7 @@ public class HackReceiver extends BroadcastReceiver
                         if (hack.isHackable())
                         {
                             Toast.makeText(context.getApplicationContext(), context
-                                    .getString(R.string.hack_available), Toast.LENGTH_SHORT);
+                                    .getString(R.string.hack_available), Toast.LENGTH_SHORT).show();
 
                             boolean buzz = PreferenceManager.getDefaultSharedPreferences(context)
                                                             .getBoolean(SettingsActivity.PREF_BUZZ_IF_HACKABLE, true);
@@ -352,6 +348,31 @@ public class HackReceiver extends BroadcastReceiver
                     }
                 }
             }
+        }
+        else if (intent.getAction().equals(ACTION_SET_COOLDOWN))
+        {
+            // First, flush the cache
+            synchronized (cacheLock)
+            {
+                cachedHacks = null;
+            }
+
+            int hack_id = intent.getIntExtra("hack_id", -1);
+            if (hack_id == -1) return;
+
+            Hack h = DatabaseManager.getInstance().findHackById(hack_id);
+
+            // Then reschedule the timers for the hack in question
+            AlarmManager am = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+
+            PendingIntent hackPendingIntent = hackAlarms.get(h.getId());
+            am.cancel(hackPendingIntent);
+
+            hackAlarms.remove(h.getId());
+
+            createHackAlarm(context, h);
+
+            HackTimerApp.getBus().post(new HackDatabaseUpdatedEvent());
         }
         else
         {
