@@ -161,6 +161,7 @@ public class Hack
         if (sinceLastHack > FOUR_HOURS_MS)
         {
             setFirstHacked(now);
+            setBurnedOut(false);
             setHackCount(0);
         }
 
