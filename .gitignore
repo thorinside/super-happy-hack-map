@@ -1,2 +1,4 @@
 target
 .idea/libraries
+classes
+gen-external-apklibs
