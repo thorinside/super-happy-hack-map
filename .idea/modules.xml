@@ -2,12 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/super-happy-hack-app.iml" filepath="$PROJECT_DIR$/super-happy-hack-app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/gen-external-apklibs/~apklib-com.doomonafireball.betterpickers_library_1.3.0.iml" filepath="$PROJECT_DIR$/gen-external-apklibs/~apklib-com.doomonafireball.betterpickers_library_1.3.0.iml" />
-      <module fileurl="file://$PROJECT_DIR$/gen-external-apklibs/~apklib-com.google.android.gms_google-play-services_10.iml" filepath="$PROJECT_DIR$/gen-external-apklibs/~apklib-com.google.android.gms_google-play-services_10.iml" />
-      <module fileurl="file://$PROJECT_DIR$/gen-external-apklibs/~apklib-com.google.maps.android_android-maps-utils-apklib_0.1.iml" filepath="$PROJECT_DIR$/gen-external-apklibs/~apklib-com.google.maps.android_android-maps-utils-apklib_0.1.iml" />
-      <module fileurl="file://$PROJECT_DIR$/gen-external-apklibs/~apklib-com.viewpagerindicator_library_2.4.1.iml" filepath="$PROJECT_DIR$/gen-external-apklibs/~apklib-com.viewpagerindicator_library_2.4.1.iml" />
-      <module fileurl="file://$PROJECT_DIR$/gen-external-apklibs/~apklib-de.psdev.licensesdialog_licensesdialog_1.1.0.iml" filepath="$PROJECT_DIR$/gen-external-apklibs/~apklib-de.psdev.licensesdialog_licensesdialog_1.1.0.iml" />
+      <module fileurl="file://$PROJECT_DIR$/SuperHappyHackMap/SuperHappyHackMap.iml" filepath="$PROJECT_DIR$/SuperHappyHackMap/SuperHappyHackMap.iml" />
+      <module fileurl="file://$PROJECT_DIR$/super-happy-hack-map.iml" filepath="$PROJECT_DIR$/super-happy-hack-map.iml" />
     </modules>
   </component>
 </project>

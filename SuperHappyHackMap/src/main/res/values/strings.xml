@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hello">Hello ingress-toolbelt!</string>
+    <string name="app_name">Super Happy Hack Map</string>
+    <string name="btn_hack">Hack</string>
+    <string name="hack">Hack</string>
+    <string name="burned">Burned</string>
+    <string name="delete">Delete</string>
+    <string name="forced_hack">Forced hack.</string>
+    <string name="hack_location_recorded">Hack location recorded.</string>
+    <string name="hack_allowed_in">Hack allowed in %s</string>
+    <string name="settings">Settings</string>
+    <string name="pref_track_distance">Track Distance</string>
+    <string name="pref_track_distance_summary">Notification element will track the distance from hack locations when
+        this is enabled.
+    </string>
+    <string name="pref_high_priority">High Notification Priority</string>
+    <string name="pref_high_priority_summary">This will try to keep the notification element at the top of the
+        notification shade.
+    </string>
+    <string name="ready">Ready</string>
+    <string name="hackable_in">Hackable in</string>
+    <string name="hacks">hacks</string>
+    <string name="burned_out">Burned Out</string>
+    <string name="hack_unavailable">Running Hot</string>
+    <string name="hack_available">Hack Available</string>
+    <string name="mark_burned_out">Mark as Burned</string>
+    <string name="remembering_geofence">Remembering Geofence</string>
+    <string name="pref_show_next_hack_time">Show Hack Time</string>
+    <string name="pref_show_next_hack_time_summary">Show next hack time on hot and burned out zones.</string>
+    <string name="pref_buzz_if_hackable">Buzz if Hackable</string>
+    <string name="pref_buzz_if_hackable_summary">Buzz if you have entered a hackable zone.</string>
+    <string name="set_cooldown">Set Cooldown Time</string>
+    <string name="about">About</string>
+</resources>
