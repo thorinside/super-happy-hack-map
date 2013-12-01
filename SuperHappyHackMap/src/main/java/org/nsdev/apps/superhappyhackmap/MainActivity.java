@@ -35,8 +35,7 @@ import java.util.List;
 
 import de.psdev.licensesdialog.LicensesDialogFragment;
 
-public class MainActivity extends FragmentActivity
-{
+public class MainActivity extends FragmentActivity {
     private static String TAG = "SHHM";
     private SupportMapFragment mapFragment;
 
@@ -54,8 +53,7 @@ public class MainActivity extends FragmentActivity
      *                           recently supplied in onSaveInstanceState(Bundle). <b>Note: Otherwise it is null.</b>
      */
     @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.i(TAG, "onCreate");
 
@@ -64,14 +62,13 @@ public class MainActivity extends FragmentActivity
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-        mapFragment = (SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.map);
+        mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
 
         map = mapFragment.getMap();
 
 
         int errorCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
-        if (errorCode != ConnectionResult.SUCCESS)
-        {
+        if (errorCode != ConnectionResult.SUCCESS) {
             GooglePlayServicesUtil.getErrorDialog(errorCode, this, 0).show();
             return;
         }
@@ -80,12 +77,10 @@ public class MainActivity extends FragmentActivity
         i.setAction(LocationLockService.ACTION_MONITOR_LOCATION);
         startService(i);
 
-        if (map != null)
-        {
+        if (map != null) {
             ComplexPreferences complexPreferences = ComplexPreferences.getComplexPreferences(this, "CAMERA_POS", MODE_PRIVATE);
             CameraPosition pos = complexPreferences.getObject("cameraPosition", CameraPosition.class);
-            if (pos != null)
-            {
+            if (pos != null) {
                 map.moveCamera(CameraUpdateFactory.newCameraPosition(pos));
                 hasZoomed = true;
             }
@@ -94,13 +89,10 @@ public class MainActivity extends FragmentActivity
             UiSettings settings = map.getUiSettings();
             settings.setMyLocationButtonEnabled(true);
             settings.setZoomControlsEnabled(false);
-            map.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener()
-            {
+            map.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
                 @Override
-                public void onMyLocationChange(Location location)
-                {
-                    if (!hasZoomed)
-                    {
+                public void onMyLocationChange(Location location) {
+                    if (!hasZoomed) {
                         map.animateCamera(CameraUpdateFactory
                                 .newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 17));
                     }
@@ -108,27 +100,18 @@ public class MainActivity extends FragmentActivity
                 }
             });
 
-            map.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener()
-            {
+            map.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
                 @Override
-                public void onCameraChange(CameraPosition cameraPosition)
-                {
-                    if (cameraPosition.zoom < 15)
-                    {
-                        for (Marker m : markers)
-                        {
-                            if (m.isVisible())
-                            {
+                public void onCameraChange(CameraPosition cameraPosition) {
+                    if (cameraPosition.zoom < 15) {
+                        for (Marker m : markers) {
+                            if (m.isVisible()) {
                                 m.setVisible(false);
                             }
                         }
-                    }
-                    else
-                    {
-                        for (Marker m : markers)
-                        {
-                            if (!m.isVisible())
-                            {
+                    } else {
+                        for (Marker m : markers) {
+                            if (!m.isVisible()) {
                                 m.setVisible(true);
                             }
                         }
@@ -136,27 +119,22 @@ public class MainActivity extends FragmentActivity
                 }
             });
 
-            map.setOnMapClickListener(new GoogleMap.OnMapClickListener()
-            {
+            map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
                 @Override
-                public void onMapClick(LatLng latLng)
-                {
-                    if (selectedCircleActionMode != null)
-                    {
+                public void onMapClick(LatLng latLng) {
+                    if (selectedCircleActionMode != null) {
                         return;
                     }
 
                     // Find the hack that was tapped
                     List<Circle> tappedCircles = findTappedCircles(latLng.latitude, latLng.longitude);
 
-                    if (tappedCircles.size() > 0)
-                    {
+                    if (tappedCircles.size() > 0) {
                         selectedCircleActionMode = new SelectedCircleActionMode(getSupportFragmentManager());
                         selectedCircleActionMode.setCircles(tappedCircles);
 
                         List<Hack> tappedHacks = new ArrayList<Hack>();
-                        for (Circle c : tappedCircles)
-                        {
+                        for (Circle c : tappedCircles) {
                             LatLng center = c.getCenter();
                             Hack h = DatabaseManager.getInstance().findHackAt(center);
                             tappedHacks.add(h);
@@ -169,10 +147,8 @@ public class MainActivity extends FragmentActivity
                 }
             });
 
-            map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener()
-            {
-                public boolean onMarkerClick(Marker marker)
-                {
+            map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                public boolean onMarkerClick(Marker marker) {
                     return true;
                 }
             });
@@ -186,23 +162,19 @@ public class MainActivity extends FragmentActivity
     SelectedCircleActionMode selectedCircleActionMode = null;
 
     @Override
-    public void onActionModeFinished(ActionMode mode)
-    {
+    public void onActionModeFinished(ActionMode mode) {
         selectedCircleActionMode = null;
         super.onActionModeFinished(mode);
     }
 
-    private List<Circle> findTappedCircles(double latitude, double longitude)
-    {
+    private List<Circle> findTappedCircles(double latitude, double longitude) {
 
         ArrayList<Circle> circleList = new ArrayList<Circle>();
 
-        for (Circle c : circles)
-        {
+        for (Circle c : circles) {
             float[] results = new float[3];
             Location.distanceBetween(latitude, longitude, c.getCenter().latitude, c.getCenter().longitude, results);
-            if (results[0] <= c.getRadius())
-            {
+            if (results[0] <= c.getRadius()) {
                 circleList.add(c);
             }
         }
@@ -211,10 +183,8 @@ public class MainActivity extends FragmentActivity
     }
 
     @Subscribe
-    public void onCirclesCoolDownTimeChanged(CirclesCoolDownTimeChangedEvent evt)
-    {
-        for (Hack h : evt.getHacks())
-        {
+    public void onCirclesCoolDownTimeChanged(CirclesCoolDownTimeChangedEvent evt) {
+        for (Hack h : evt.getHacks()) {
             updateCooldownForHack(h);
         }
     }
@@ -227,15 +197,12 @@ public class MainActivity extends FragmentActivity
     }
 
     @Subscribe
-    public void onCirclesDeleted(CirclesDeletedEvent evt)
-    {
-        for (Circle c : evt.getCircles())
-        {
+    public void onCirclesDeleted(CirclesDeletedEvent evt) {
+        for (Circle c : evt.getCircles()) {
             LatLng center = c.getCenter();
             Hack h = DatabaseManager.getInstance().findHackAt(center);
 
-            if (h == null)
-            {
+            if (h == null) {
                 Log.d(TAG, "Deleted hack not found.");
                 return;
             }
@@ -262,10 +229,8 @@ public class MainActivity extends FragmentActivity
     }
 
     @Subscribe
-    public void onCirclesHacked(CirclesHackedEvent evt)
-    {
-        for (Circle c : evt.getCircles())
-        {
+    public void onCirclesHacked(CirclesHackedEvent evt) {
+        for (Circle c : evt.getCircles()) {
             LatLng center = c.getCenter();
             Hack h = DatabaseManager.getInstance().findHackAt(center);
             h.setBurnedOut(false);
@@ -288,10 +253,8 @@ public class MainActivity extends FragmentActivity
     }
 
     @Subscribe
-    public void onCirclesBurned(CirclesBurnedEvent evt)
-    {
-        for (Circle c : evt.getCircles())
-        {
+    public void onCirclesBurned(CirclesBurnedEvent evt) {
+        for (Circle c : evt.getCircles()) {
             LatLng center = c.getCenter();
             Hack h = DatabaseManager.getInstance().findHackAt(center);
             h.setBurnedOut(true);
@@ -308,15 +271,12 @@ public class MainActivity extends FragmentActivity
     }
 
     @Subscribe
-    public void onHackDatabaseUpdated(HackDatabaseUpdatedEvent evt)
-    {
-        for (final Circle c : circles)
-        {
+    public void onHackDatabaseUpdated(HackDatabaseUpdatedEvent evt) {
+        for (final Circle c : circles) {
             c.remove();
         }
 
-        for (final Marker m : markers)
-        {
+        for (final Marker m : markers) {
             m.remove();
         }
 
@@ -324,8 +284,7 @@ public class MainActivity extends FragmentActivity
         markers.clear();
 
         List<Hack> hacks = DatabaseManager.getInstance().getAllHacks();
-        for (Hack h : hacks)
-        {
+        for (Hack h : hacks) {
             final CircleOptions opts = new CircleOptions();
             final LatLng center = new LatLng(h.getLatitude(), h.getLongitude());
             opts.center(center);
@@ -335,13 +294,10 @@ public class MainActivity extends FragmentActivity
             opts.strokeWidth(2);
             opts.zIndex(100);
 
-            if (h.isBurnedOut())
-            {
+            if (h.isBurnedOut()) {
                 opts.strokeColor(Color.BLACK);
                 opts.fillColor(Color.argb(64, 0, 0, 0));
-            }
-            else if (h.timeUntilHackable() <= 0)
-            {
+            } else if (h.timeUntilHackable() <= 0) {
                 opts.strokeColor(Color.GREEN);
                 opts.fillColor(Color.argb(64, 0, 255, 0));
             }
@@ -350,8 +306,7 @@ public class MainActivity extends FragmentActivity
 
             // Display the next available hack time on the circles
             if (h.isBurnedOut() || h.timeUntilHackable() > 0 && preferences
-                    .getBoolean(SettingsActivity.PREF_SHOW_NEXT_HACK_TIME, true))
-            {
+                    .getBoolean(SettingsActivity.PREF_SHOW_NEXT_HACK_TIME, true)) {
 
                 BubbleIconFactory factory = new BubbleIconFactory(MainActivity.this);
                 if (h.isBurnedOut())
@@ -371,20 +326,17 @@ public class MainActivity extends FragmentActivity
     }
 
     @Override
-    protected void onPause()
-    {
+    protected void onPause() {
         super.onPause();
     }
 
     @Override
-    protected void onResume()
-    {
+    protected void onResume() {
         super.onResume();
     }
 
     @Override
-    protected void onDestroy()
-    {
+    protected void onDestroy() {
         CameraPosition pos = map.getCameraPosition();
 
         ComplexPreferences complexPreferences = ComplexPreferences.getComplexPreferences(this, "CAMERA_POS", MODE_PRIVATE);
@@ -395,39 +347,33 @@ public class MainActivity extends FragmentActivity
     }
 
     @Override
-    protected void onStart()
-    {
+    protected void onStart() {
         HackTimerApp.getBus().register(this);
         HackTimerApp.getBus().post(new HackDatabaseUpdatedEvent());
         super.onStart();
     }
 
     @Override
-    protected void onStop()
-    {
+    protected void onStop() {
         HackTimerApp.getBus().unregister(this);
         super.onStop();
     }
 
     @Override
-    protected void onNewIntent(Intent intent)
-    {
+    protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
     }
 
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu)
-    {
+    public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item)
-    {
-        switch (item.getItemId())
-        {
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
             case R.id.menu_hack:
                 sendBroadcast(new Intent(HackReceiver.ACTION_HACK, null, getBaseContext(), HackReceiver.class));
                 return true;
@@ -452,6 +398,7 @@ public class MainActivity extends FragmentActivity
                             updateCooldownForHack(h);
                         }
                         onHackDatabaseUpdated(new HackDatabaseUpdatedEvent());
+                        HackReceiver.trigger(getBaseContext());
                     }
                 });
                 /*
