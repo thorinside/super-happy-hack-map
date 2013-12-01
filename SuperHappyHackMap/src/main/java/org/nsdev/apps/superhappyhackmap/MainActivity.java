@@ -6,28 +6,34 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import com.cocosw.undobar.UndoBarController;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.UiSettings;
-import com.google.android.gms.maps.model.*;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.ui.BubbleIconFactory;
 import com.squareup.otto.Subscribe;
 
-import de.psdev.licensesdialog.LicensesDialogFragment;
-import com.cocosw.undobar.UndoBarController;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import de.psdev.licensesdialog.LicensesDialogFragment;
 
 public class MainActivity extends FragmentActivity
 {
@@ -39,7 +45,6 @@ public class MainActivity extends FragmentActivity
     private ArrayList<Marker> markers = new ArrayList<Marker>();
     private boolean hasZoomed = false;
     private SharedPreferences preferences;
-    private Handler handler;
 
     /**
      * Called when the activity is first created.
@@ -54,11 +59,7 @@ public class MainActivity extends FragmentActivity
         super.onCreate(savedInstanceState);
         Log.i(TAG, "onCreate");
 
-        handler = new Handler();
-
         setContentView(R.layout.main);
-
-        //int res = R.raw.asl_20_full;
 
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -434,8 +435,8 @@ public class MainActivity extends FragmentActivity
                 startActivity(new Intent(getBaseContext(), SettingsActivity.class));
                 return true;
             case R.id.menu_about:
-                //final LicensesDialogFragment fragment = LicensesDialogFragment.newInstace(R.raw.notices, true);
-                //fragment.show(getSupportFragmentManager(), null);
+                final LicensesDialogFragment fragment = LicensesDialogFragment.newInstance(R.raw.notices, true);
+                fragment.show(getSupportFragmentManager(), null);
                 return true;
             case R.id.menu_clear_all:
                 final List<Hack> allHacks = DatabaseManager.getInstance().getAllHacks();

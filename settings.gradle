@@ -1,4 +1,7 @@
-include ':SuperHappyHackMap', ':AndroidBetterPickers', ':LicensesDialog', ':UndoBar'
+include ':SuperHappyHackMap'
+include ':AndroidBetterPickers'
+include ':LicensesDialog'
+include ':UndoBar'
 
 project(":AndroidBetterPickers").projectDir = new File("libraries/AndroidBetterPickers/library")
 project(":LicensesDialog").projectDir = new File("libraries/LicensesDialog/library")

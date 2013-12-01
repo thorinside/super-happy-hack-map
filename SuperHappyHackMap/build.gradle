@@ -33,7 +33,6 @@ dependencies {
     compile 'com.j256.ormlite:ormlite-android:4.43+'
     compile 'com.nineoldandroids:library:2.4.0'
     compile 'org.slf4j:slf4j-api:1.7.5'
-
     compile project(':AndroidBetterPickers')
     compile project(':LicensesDialog')
     compile project(':UndoBar')
