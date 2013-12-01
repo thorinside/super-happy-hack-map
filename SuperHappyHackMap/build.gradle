@@ -20,7 +20,22 @@ android {
         minSdkVersion 14
         targetSdkVersion 19
     }
-    signingConfigs {}
+    signingConfigs {
+        releaseConfig {
+            storeFile file("/Users/neal/Dropbox/android/thorinside-release-key.keystore")
+            storePassword "Mac111Mac111"
+            keyAlias "thorinside"
+            keyPassword "Mac111Mac111"
+        }
+    }
+
+    buildTypes {
+        release {
+            debuggable false
+            signingConfig signingConfigs.releaseConfig
+        }
+    }
+
 }
 
 dependencies {
