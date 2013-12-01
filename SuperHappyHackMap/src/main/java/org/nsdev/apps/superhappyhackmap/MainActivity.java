@@ -390,7 +390,7 @@ public class MainActivity extends FragmentActivity {
                     deleteHack(h);
                 }
 
-                UndoBarController.show(this, "Undo delete?", new UndoBarController.UndoListener() {
+                UndoBarController.show(this, getString(R.string.delete_all_undo_prompt), new UndoBarController.UndoListener() {
                     @Override
                     public void onUndo(Parcelable parcelable) {
                         for (Hack h : allHacks) {
@@ -401,8 +401,6 @@ public class MainActivity extends FragmentActivity {
                         HackReceiver.trigger(getBaseContext());
                     }
                 });
-                /*
-                */
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

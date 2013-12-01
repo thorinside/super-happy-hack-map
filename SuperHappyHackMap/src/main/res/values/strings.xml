@@ -33,4 +33,5 @@
     <string name="set_cooldown">Set Cooldown Time</string>
     <string name="about">About</string>
     <string name="clear_all">Clear All</string>
+    <string name="delete_all_undo_prompt">Undo clear all?</string>
 </resources>

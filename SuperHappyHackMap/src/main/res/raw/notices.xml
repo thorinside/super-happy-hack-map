@@ -104,6 +104,14 @@
         <copyright>Copyright 2013 Google, Inc.</copyright>
         <license>Apache Software License 2.0</license>
     </notice>
+
+    <notice>
+        <name>UndoBar</name>
+        <url>https://github.com/soarcn/UndoBar</url>
+        <copyright>Copyright 2011, 2012 Liao Kai</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+
     <!--
     <notice>
         <name>Apache Commons Lang</name>
