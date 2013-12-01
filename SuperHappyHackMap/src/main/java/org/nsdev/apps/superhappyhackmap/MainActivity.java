@@ -5,9 +5,9 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Location;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.view.ActionMode;
@@ -22,7 +22,9 @@ import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.*;
 import com.google.maps.android.ui.BubbleIconFactory;
 import com.squareup.otto.Subscribe;
+
 import de.psdev.licensesdialog.LicensesDialogFragment;
+import com.cocosw.undobar.UndoBarController;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,7 +58,7 @@ public class MainActivity extends FragmentActivity
 
         setContentView(R.layout.main);
 
-        int res = R.raw.asl_20_full;
+        //int res = R.raw.asl_20_full;
 
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -212,11 +214,15 @@ public class MainActivity extends FragmentActivity
     {
         for (Hack h : evt.getHacks())
         {
-            Intent intent = new Intent(HackReceiver.ACTION_SET_COOLDOWN, null, getBaseContext(), HackReceiver.class);
-            intent.putExtra("hack_id", h.getId());
-
-            sendBroadcast(intent);
+            updateCooldownForHack(h);
         }
+    }
+
+    private void updateCooldownForHack(Hack h) {
+        Intent intent = new Intent(HackReceiver.ACTION_SET_COOLDOWN, null, getBaseContext(), HackReceiver.class);
+        intent.putExtra("hack_id", h.getId());
+
+        sendBroadcast(intent);
     }
 
     @Subscribe
@@ -233,21 +239,25 @@ public class MainActivity extends FragmentActivity
                 return;
             }
 
-            Intent intent = new Intent(HackReceiver.ACTION_ALARM, null, getBaseContext(), HackReceiver.class);
-            intent.putExtra("hack_id", h.getId());
-            intent.putExtra("sound", false);
-            intent.putExtra("userDeleted", true);
-
-            // Delete the geofence as well now
-            Intent deleteFenceIntent = new Intent(LocationLockService.ACTION_HACK, null, getBaseContext(), LocationLockService.class);
-            deleteFenceIntent.putExtra("hack_id", h.getId());
-            deleteFenceIntent.putExtra("delete", true);
-
-            DatabaseManager.getInstance().deleteHack(h);
-            sendBroadcast(intent);
-
-            startService(deleteFenceIntent);
+            deleteHack(h);
         }
+    }
+
+    private void deleteHack(Hack h) {
+        Intent intent = new Intent(HackReceiver.ACTION_ALARM, null, getBaseContext(), HackReceiver.class);
+        intent.putExtra("hack_id", h.getId());
+        intent.putExtra("sound", false);
+        intent.putExtra("userDeleted", true);
+
+        // Delete the geofence as well now
+        Intent deleteFenceIntent = new Intent(LocationLockService.ACTION_HACK, null, getBaseContext(), LocationLockService.class);
+        deleteFenceIntent.putExtra("hack_id", h.getId());
+        deleteFenceIntent.putExtra("delete", true);
+
+        DatabaseManager.getInstance().deleteHack(h);
+        sendBroadcast(intent);
+
+        startService(deleteFenceIntent);
     }
 
     @Subscribe
@@ -424,8 +434,27 @@ public class MainActivity extends FragmentActivity
                 startActivity(new Intent(getBaseContext(), SettingsActivity.class));
                 return true;
             case R.id.menu_about:
-                final LicensesDialogFragment fragment = LicensesDialogFragment.newInstace(R.raw.notices, true);
-                fragment.show(getSupportFragmentManager(), null);
+                //final LicensesDialogFragment fragment = LicensesDialogFragment.newInstace(R.raw.notices, true);
+                //fragment.show(getSupportFragmentManager(), null);
+                return true;
+            case R.id.menu_clear_all:
+                final List<Hack> allHacks = DatabaseManager.getInstance().getAllHacks();
+                for (Hack h : allHacks) {
+                    deleteHack(h);
+                }
+
+                UndoBarController.show(this, "Undo delete?", new UndoBarController.UndoListener() {
+                    @Override
+                    public void onUndo(Parcelable parcelable) {
+                        for (Hack h : allHacks) {
+                            DatabaseManager.getInstance().save(h);
+                            updateCooldownForHack(h);
+                        }
+                        onHackDatabaseUpdated(new HackDatabaseUpdatedEvent());
+                    }
+                });
+                /*
+                */
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
