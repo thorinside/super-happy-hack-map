@@ -1,0 +1,8 @@
+include ':SuperHappyHackMap'
+include ':AndroidBetterPickers'
+include ':LicensesDialog'
+include ':UndoBar'
+
+project(":AndroidBetterPickers").projectDir = new File("libraries/AndroidBetterPickers/library")
+project(":LicensesDialog").projectDir = new File("libraries/LicensesDialog/library")
+project(":UndoBar").projectDir = new File("libraries/UndoBar/libary")

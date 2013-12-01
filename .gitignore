@@ -2,3 +2,5 @@ target
 .idea/libraries
 classes
 gen-external-apklibs
+workspace.xml
+.gradle

@@ -1,0 +1,54 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:0.6+'
+    }
+}
+apply plugin: 'android'
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+android {
+    compileSdkVersion 19
+    buildToolsVersion '19.0.0'
+    defaultConfig {
+        minSdkVersion 14
+        targetSdkVersion 19
+    }
+    signingConfigs {
+        releaseConfig {
+            storeFile file("/Users/neal/Dropbox/android/thorinside-release-key.keystore")
+            storePassword "Mac111Mac111"
+            keyAlias "thorinside"
+            keyPassword "Mac111Mac111"
+        }
+    }
+
+    buildTypes {
+        release {
+            debuggable false
+            signingConfig signingConfigs.releaseConfig
+        }
+    }
+
+}
+
+dependencies {
+    compile 'com.android.support:appcompat-v7:18.0.0+'
+    compile 'com.google.android.gms:play-services:3.2.25'
+    compile 'com.google.maps.android:android-maps-utils:0.1+'
+    compile 'com.android.support:support-v4:18.0.0+'
+    compile 'com.google.code.gson:gson:2.2.4+'
+    compile 'com.squareup:otto:1.3.3'
+    compile 'com.j256.ormlite:ormlite-android:4.43+'
+    compile 'com.nineoldandroids:library:2.4.0'
+    compile 'org.slf4j:slf4j-api:1.7.5'
+    compile project(':AndroidBetterPickers')
+    compile project(':LicensesDialog')
+    compile project(':UndoBar')
+}
