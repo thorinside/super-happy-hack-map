@@ -4,8 +4,6 @@
     <mapping directory="" vcs="" />
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libraries/AndroidBetterPickers" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/libraries/LicensesDialog" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/libraries/UndoBar" vcs="Git" />
   </component>
 </project>
 

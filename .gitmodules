@@ -1,9 +1,3 @@
-[submodule "libraries/UndoBar"]
-	path = libraries/UndoBar
-	url = https://github.com/soarcn/UndoBar
-[submodule "libraries/LicensesDialog"]
-	path = libraries/LicensesDialog
-	url = https://github.com/PSDev/LicensesDialog
 [submodule "libraries/AndroidBetterPickers"]
 	path = libraries/AndroidBetterPickers
 	url = https://github.com/thorinside/android-betterpickers

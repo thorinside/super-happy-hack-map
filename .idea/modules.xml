@@ -2,10 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/libraries/AndroidBetterPickers/library/AndroidBetterPickers.iml" filepath="$PROJECT_DIR$/libraries/AndroidBetterPickers/library/AndroidBetterPickers.iml" />
-      <module fileurl="file://$PROJECT_DIR$/libraries/LicensesDialog/library/LicensesDialog.iml" filepath="$PROJECT_DIR$/libraries/LicensesDialog/library/LicensesDialog.iml" />
       <module fileurl="file://$PROJECT_DIR$/SuperHappyHackMap/SuperHappyHackMap.iml" filepath="$PROJECT_DIR$/SuperHappyHackMap/SuperHappyHackMap.iml" />
-      <module fileurl="file://$PROJECT_DIR$/libraries/UndoBar/libary/UndoBar.iml" filepath="$PROJECT_DIR$/libraries/UndoBar/libary/UndoBar.iml" />
+      <module fileurl="file://$PROJECT_DIR$/libraries/AndroidBetterPickers/library/library.iml" filepath="$PROJECT_DIR$/libraries/AndroidBetterPickers/library/library.iml" />
       <module fileurl="file://$PROJECT_DIR$/super-happy-hack-map.iml" filepath="$PROJECT_DIR$/super-happy-hack-map.iml" />
     </modules>
   </component>

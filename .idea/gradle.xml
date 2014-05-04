@@ -3,9 +3,20 @@
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
-        <option name="distributionType" value="LOCAL" />
+        <option name="distributionType" value="DEFAULT_WRAPPED" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="gradleHome" value="/usr/local/Cellar/gradle/1.8/libexec" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/SuperHappyHackMap" />
+            <option value="$PROJECT_DIR$/libraries" />
+            <option value="$PROJECT_DIR$/libraries/AndroidBetterPickers" />
+            <option value="$PROJECT_DIR$/libraries/AndroidBetterPickers/library" />
+            <option value="$PROJECT_DIR$/libraries/UndoBar" />
+            <option value="$PROJECT_DIR$/libraries/UndoBar/libary" />
+          </set>
+        </option>
       </GradleProjectSettings>
     </option>
   </component>

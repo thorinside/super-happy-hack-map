@@ -3,7 +3,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.6+'
+        classpath 'com.android.tools.build:gradle:0.9.+'
     }
 }
 apply plugin: 'android'
@@ -15,7 +15,7 @@ repositories {
 
 android {
     compileSdkVersion 19
-    buildToolsVersion '19.0.0'
+    buildToolsVersion '19.0.3'
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 19
@@ -39,16 +39,18 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:18.0.0+'
+    compile 'com.android.support:appcompat-v7:19.1.0'
     compile 'com.google.android.gms:play-services:3.2.25'
     compile 'com.google.maps.android:android-maps-utils:0.1+'
-    compile 'com.android.support:support-v4:18.0.0+'
-    compile 'com.google.code.gson:gson:2.2.4+'
-    compile 'com.squareup:otto:1.3.3'
-    compile 'com.j256.ormlite:ormlite-android:4.43+'
+    compile 'com.android.support:support-v4:19.1.0'
+    compile 'com.google.code.gson:gson:2.2.4'
+    compile 'com.squareup:otto:1.3.4'
+    compile 'com.j256.ormlite:ormlite-android:4.48'
     compile 'com.nineoldandroids:library:2.4.0'
-    compile 'org.slf4j:slf4j-api:1.7.5'
-    compile project(':AndroidBetterPickers')
-    compile project(':LicensesDialog')
-    compile project(':UndoBar')
+    compile 'org.slf4j:slf4j-api:1.7.7'
+    compile('de.psdev.licensesdialog:licensesdialog:1.4.0') {
+        exclude module: 'support-v4'
+    }
+    compile 'com.cocosw:undobar:1.1@aar'
+    compile project(':libraries:AndroidBetterPickers:library')
 }

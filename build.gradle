@@ -4,7 +4,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.6+'
+        classpath 'com.android.tools.build:gradle:0.10.0'
     }
 }
 
@@ -14,15 +14,16 @@ repositories {
 
 // Definition of the build script for library projects that are included as git submodules.
 
-project(':AndroidBetterPickers') {
+project(':libraries:AndroidBetterPickers:library') {
     apply plugin: 'android-library'
-
+    group = 'com.doomonafireball.betterpickers'
+    version = '1.4.0'
     android {
         compileSdkVersion 17
-        buildToolsVersion "19.0.0"
+        buildToolsVersion "19.0.3"
 
         defaultConfig {
-            targetSdkVersion 16
+            targetSdkVersion 19
         }
 
         sourceSets {
@@ -40,70 +41,7 @@ project(':AndroidBetterPickers') {
             mavenCentral()
         }
 
-        compile 'com.android.support:support-v4:18.0.0+'
+        compile 'com.android.support:support-v4:19.1.0'
         compile 'com.nineoldandroids:library:2.4.0'
-    }
-}
-
-project(':LicensesDialog') {
-    apply plugin: 'android-library'
-
-    android {
-        compileSdkVersion 19
-        buildToolsVersion "19.0.0"
-
-        defaultConfig {
-            targetSdkVersion 19
-        }
-
-        sourceSets {
-            main {
-                manifest.srcFile 'AndroidManifest.xml'
-                java.srcDirs = ['src/main/java']
-                res.srcDirs = ['res']
-                assets.srcDirs = ['assets']
-            }
-            instrumentTest.setRoot('tests')
-        }
-    }
-
-    dependencies {
-        repositories {
-            mavenCentral()
-        }
-
-        compile 'com.android.support:support-v4:18.0.0+'
-        compile 'org.slf4j:slf4j-api:1.7.5'
-    }
-}
-
-
-project(':UndoBar') {
-    apply plugin: 'android-library'
-
-    android {
-        compileSdkVersion 19
-        buildToolsVersion "19.0.0"
-
-        defaultConfig {
-            targetSdkVersion 19
-        }
-
-        sourceSets {
-            main {
-                manifest.srcFile 'AndroidManifest.xml'
-                java.srcDirs = ['src']
-                resources.srcDirs = ['src']
-                aidl.srcDirs = ['src']
-                renderscript.srcDirs = ['src']
-                res.srcDirs = ['res']
-                assets.srcDirs = ['assets']
-            }
-            instrumentTest.setRoot('tests')
-        }
-    }
-
-    dependencies {
-        compile 'com.android.support:support-v4:18.0.0+'
     }
 }

@@ -4,3 +4,5 @@ classes
 gen-external-apklibs
 workspace.xml
 .gradle
+build
+*.iml
