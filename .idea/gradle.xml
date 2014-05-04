@@ -13,8 +13,8 @@
             <option value="$PROJECT_DIR$/libraries" />
             <option value="$PROJECT_DIR$/libraries/AndroidBetterPickers" />
             <option value="$PROJECT_DIR$/libraries/AndroidBetterPickers/library" />
-            <option value="$PROJECT_DIR$/libraries/UndoBar" />
-            <option value="$PROJECT_DIR$/libraries/UndoBar/libary" />
+            <option value="$PROJECT_DIR$/libraries/StandOut" />
+            <option value="$PROJECT_DIR$/libraries/StandOut/library" />
           </set>
         </option>
       </GradleProjectSettings>

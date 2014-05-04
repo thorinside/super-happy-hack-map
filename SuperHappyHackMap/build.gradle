@@ -53,4 +53,5 @@ dependencies {
     }
     compile 'com.cocosw:undobar:1.1@aar'
     compile project(':libraries:AndroidBetterPickers:library')
+    compile project(':libraries:StandOut:library')
 }
