@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.psdev.licensesdialog.LicensesDialogFragment;
+import wei.mark.standout.StandOutWindow;
 
 public class MainActivity extends FragmentActivity {
     private static String TAG = "SHHM";
@@ -65,7 +66,6 @@ public class MainActivity extends FragmentActivity {
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
 
         map = mapFragment.getMap();
-
 
         int errorCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
         if (errorCode != ConnectionResult.SUCCESS) {
@@ -350,6 +350,14 @@ public class MainActivity extends FragmentActivity {
     protected void onStart() {
         HackTimerApp.getBus().register(this);
         HackTimerApp.getBus().post(new HackDatabaseUpdatedEvent());
+
+        //StandOutWindow.closeAll(this, HackWindow.class);
+        boolean showHelper = PreferenceManager.getDefaultSharedPreferences(this)
+                .getBoolean(SettingsActivity.PREF_SHOW_HACK_HELPER_WINDOW, false);
+
+        if (showHelper)
+            StandOutWindow.show(this, HackWindow.class, StandOutWindow.DEFAULT_ID);
+
         super.onStart();
     }
 

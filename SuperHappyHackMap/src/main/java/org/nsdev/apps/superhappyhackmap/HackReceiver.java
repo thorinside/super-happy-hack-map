@@ -16,11 +16,14 @@ import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.widget.Toast;
+
 import com.google.android.gms.location.Geofence;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+
+import wei.mark.standout.StandOutWindow;
 
 /**
  * Created by neal 13-03-14 6:23 PM
@@ -171,6 +174,8 @@ public class HackReceiver extends BroadcastReceiver
             {
                 am.cancel(pendingIntent);
             }
+
+            StandOutWindow.closeAll(context, HackWindow.class);
 
             hackAlarms.clear();
 
