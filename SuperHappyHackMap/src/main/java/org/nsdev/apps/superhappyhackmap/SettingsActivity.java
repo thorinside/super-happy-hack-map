@@ -14,6 +14,7 @@ public class SettingsActivity extends Activity
     public static final String PREF_HIGH_PRIORITY = "pref_high_priority";
     public static final String PREF_SHOW_NEXT_HACK_TIME = "pref_show_next_hack_time";
     public static final String PREF_BUZZ_IF_HACKABLE = "pref_buzz_if_hackable";
+    public static final String PREF_SHOW_HACK_HELPER_WINDOW = "pref_show_hack_helper_window";
 
     public static class SettingsFragment extends PreferenceFragment
     {

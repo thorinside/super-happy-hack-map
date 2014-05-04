@@ -1,9 +1,8 @@
 package org.nsdev.apps.superhappyhackmap;
 
 import android.app.Application;
-import android.location.Location;
+
 import com.squareup.otto.Bus;
-import com.squareup.otto.Subscribe;
 
 /**
  * Created by neal 13-03-11 10:16 PM
@@ -22,6 +21,7 @@ public class HackTimerApp extends Application
 
         bus = new Bus();
         bus.register(this);
+
     }
 
     @Override
