@@ -38,4 +38,7 @@
     <string name="pref_show_hack_helper_window_summary">Show a small, on screen, button that can be used to register hacks more easily.</string>
     <string name="hack_window_notification_text">Click to close Hack Helper window.</string>
     <string name="hack_window_app_name">SHHM Hack Helper</string>
+    <string name="move">Move</string>
+    <string name="move_instructions">Tap on the map to move the hack zone.</string>
+    <string name="move_too_many">You can only move one zone at a time.</string>
 </resources>

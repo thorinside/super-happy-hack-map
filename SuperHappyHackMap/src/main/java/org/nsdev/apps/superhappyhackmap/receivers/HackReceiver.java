@@ -1,4 +1,4 @@
-package org.nsdev.apps.superhappyhackmap;
+package org.nsdev.apps.superhappyhackmap.receivers;
 
 import android.app.AlarmManager;
 import android.app.NotificationManager;
@@ -19,6 +19,17 @@ import android.widget.Toast;
 
 import com.google.android.gms.location.Geofence;
 
+import org.nsdev.apps.superhappyhackmap.HackTimerApp;
+import org.nsdev.apps.superhappyhackmap.R;
+import org.nsdev.apps.superhappyhackmap.activities.MainActivity;
+import org.nsdev.apps.superhappyhackmap.activities.SettingsActivity;
+import org.nsdev.apps.superhappyhackmap.events.HackDatabaseUpdatedEvent;
+import org.nsdev.apps.superhappyhackmap.model.DatabaseManager;
+import org.nsdev.apps.superhappyhackmap.model.Hack;
+import org.nsdev.apps.superhappyhackmap.services.HackWindow;
+import org.nsdev.apps.superhappyhackmap.services.LocationLockService;
+import org.nsdev.apps.superhappyhackmap.utils.Log;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -37,6 +48,7 @@ public class HackReceiver extends BroadcastReceiver
     public static final String ACTION_HACK = "org.nsdev.superhappyhackmap.action.HACK";
     public static final String ACTION_TRIGGER = "org.nsdev.superhappyhackmap.action.TRIGGER";
     public static final String ACTION_ALARM = "org.nsdev.superhappyhackmap.action.ALARM";
+    public static final String ACTION_MOVE = "org.nsdev.superhappyhackmap.action.MOVE";
     public static final String ACTION_TRANSITION = "org.nsdev.superhappyhackmap.action.TRANSITION";
     public static final String ACTION_SET_COOLDOWN = "org.nsdev.superhappyhackmap.action.SET_COOLDOWN";
 
@@ -283,6 +295,10 @@ public class HackReceiver extends BroadcastReceiver
             }
             hackAlarms.remove(hackId);
             HackTimerApp.getBus().post(new HackDatabaseUpdatedEvent());
+        } else if (intent.getAction().equals(ACTION_MOVE)) {
+            synchronized (cacheLock) {
+                cachedHacks = null;
+            }
         }
         else if (intent.getAction().equals(ACTION_BURNOUT))
         {

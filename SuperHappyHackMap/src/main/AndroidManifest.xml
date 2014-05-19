@@ -48,7 +48,7 @@
         android:name=".HackTimerApp">
 
         <activity
-            android:name=".MainActivity"
+            android:name=".activities.MainActivity"
             android:launchMode="singleInstance">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -56,12 +56,12 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".SettingsActivity"/>
+        <activity android:name=".activities.SettingsActivity"/>
 
-        <service android:name=".LocationLockService"/>
+        <service android:name=".services.LocationLockService"/>
 
-        <receiver android:name=".HackReceiver">
-            <intent-filter>
+        <receiver android:name=".receivers.HackReceiver">
+        <intent-filter>
                 <action android:name="android.intent.action.SCREEN_OFF"/>
                 <action android:name="android.intent.action.SCREEN_ON"/>
             </intent-filter>
@@ -72,7 +72,7 @@
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyAYWh_joqENvHS9Sz76bWmCRAdnkTeCD4Y"/>
 
-        <service android:name=".HackWindow">
+        <service android:name=".services.HackWindow">
         </service>
 
         <meta-data

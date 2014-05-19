@@ -1,4 +1,4 @@
-package org.nsdev.apps.superhappyhackmap;
+package org.nsdev.apps.superhappyhackmap.activities;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -30,6 +30,23 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.ui.IconGenerator;
 import com.squareup.otto.Subscribe;
 
+import org.nsdev.apps.superhappyhackmap.HackTimerApp;
+import org.nsdev.apps.superhappyhackmap.R;
+import org.nsdev.apps.superhappyhackmap.actions.SelectedCircleActionMode;
+import org.nsdev.apps.superhappyhackmap.events.CirclesBurnedEvent;
+import org.nsdev.apps.superhappyhackmap.events.CirclesCoolDownTimeChangedEvent;
+import org.nsdev.apps.superhappyhackmap.events.CirclesDeletedEvent;
+import org.nsdev.apps.superhappyhackmap.events.CirclesHackedEvent;
+import org.nsdev.apps.superhappyhackmap.events.HackDatabaseUpdatedEvent;
+import org.nsdev.apps.superhappyhackmap.events.MoveCircleEvent;
+import org.nsdev.apps.superhappyhackmap.model.DatabaseManager;
+import org.nsdev.apps.superhappyhackmap.model.Hack;
+import org.nsdev.apps.superhappyhackmap.receivers.HackReceiver;
+import org.nsdev.apps.superhappyhackmap.services.HackWindow;
+import org.nsdev.apps.superhappyhackmap.services.LocationLockService;
+import org.nsdev.apps.superhappyhackmap.utils.ComplexPreferences;
+import org.nsdev.apps.superhappyhackmap.utils.Log;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,6 +62,8 @@ public class MainActivity extends FragmentActivity {
     private ArrayList<Marker> markers = new ArrayList<Marker>();
     private boolean hasZoomed = false;
     private SharedPreferences preferences;
+    private Circle mMovingCircle;
+    private ActionMode mCurrentActionMode;
 
     /**
      * Called when the activity is first created.
@@ -123,6 +142,17 @@ public class MainActivity extends FragmentActivity {
                 @Override
                 public void onMapClick(LatLng latLng) {
                     if (selectedCircleActionMode != null) {
+                        if (mMovingCircle != null) {
+                            final LatLng center = mMovingCircle.getCenter();
+                            final Hack hack = DatabaseManager.getInstance().findHackAt(center);
+                            mMovingCircle.setCenter(latLng);
+                            hack.setLatitude(latLng.latitude);
+                            hack.setLongitude(latLng.longitude);
+                            DatabaseManager.getInstance().save(hack);
+                            moveHack(hack);
+                            mMovingCircle = null;
+                            if (mCurrentActionMode != null) mCurrentActionMode.finish();
+                        }
                         return;
                     }
 
@@ -142,7 +172,7 @@ public class MainActivity extends FragmentActivity {
 
                         selectedCircleActionMode.setHacks(tappedHacks);
 
-                        startActionMode(selectedCircleActionMode);
+                        mCurrentActionMode = startActionMode(selectedCircleActionMode);
                     }
                 }
             });
@@ -164,7 +194,9 @@ public class MainActivity extends FragmentActivity {
     @Override
     public void onActionModeFinished(ActionMode mode) {
         selectedCircleActionMode = null;
+        mCurrentActionMode = null;
         super.onActionModeFinished(mode);
+        onHackDatabaseUpdated(null);
     }
 
     private List<Circle> findTappedCircles(double latitude, double longitude) {
@@ -209,6 +241,21 @@ public class MainActivity extends FragmentActivity {
 
             deleteHack(h);
         }
+    }
+
+    private void moveHack(Hack h) {
+        Intent intent = new Intent(HackReceiver.ACTION_MOVE, null, getBaseContext(), HackReceiver.class);
+        intent.putExtra("hack_id", h.getId());
+
+        // Move the geofence as well now
+        Intent moveFenceIntent = new Intent(LocationLockService.ACTION_MOVE, null, getBaseContext(), LocationLockService.class);
+        moveFenceIntent.putExtra("hack_id", h.getId());
+        moveFenceIntent.putExtra("hack_latitude", h.getLatitude());
+        moveFenceIntent.putExtra("hack_longitude", h.getLongitude());
+        moveFenceIntent.putExtra("move", true);
+
+        sendBroadcast(intent);
+        startService(moveFenceIntent);
     }
 
     private void deleteHack(Hack h) {
@@ -327,6 +374,9 @@ public class MainActivity extends FragmentActivity {
 
     @Override
     protected void onPause() {
+        if (mCurrentActionMode != null) {
+            mCurrentActionMode.finish();
+        }
         super.onPause();
     }
 
@@ -413,6 +463,11 @@ public class MainActivity extends FragmentActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Subscribe
+    public void onMoveCircleEvent(MoveCircleEvent event) {
+        mMovingCircle = event.getCircle();
     }
 
 }

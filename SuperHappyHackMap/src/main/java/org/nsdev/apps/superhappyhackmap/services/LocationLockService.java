@@ -1,17 +1,26 @@
-package org.nsdev.apps.superhappyhackmap;
+package org.nsdev.apps.superhappyhackmap.services;
 
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.location.Location;
-import android.os.*;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.IBinder;
+import android.os.Looper;
+import android.os.Message;
 import android.os.Process;
+
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
+
+import org.nsdev.apps.superhappyhackmap.receivers.HackReceiver;
+import org.nsdev.apps.superhappyhackmap.utils.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,11 +40,13 @@ public class LocationLockService extends Service
     public static final String ACTION_MONITOR_LOCATION = "org.nsdev.apps.superhappyhackmap.action.MONITOR_LOCATION";
     public static final String ACTION_FENCEUPDATE = "org.nsdev.apps.superhappyhackmap.action.FENCE_UPDATE";
     public static final String ACTION_HACK = "org.nsdev.apps.superhappyhackmap.action.HACK";
+    public static final String ACTION_MOVE = "org.nsdev.apps.superhappyhackmap.action.MOVE";
 
     private static final int MSG_STOP = 0;
     private static final int MSG_START = 1;
     private static final int MSG_FENCE_UPDATE = 2;
     private static final int MSG_HACK = 3;
+    private static final int MSG_MOVE = 4;
 
     private static final int FASTEST_INTERVAL = 1000;
     private static final int INTERVAL = 5000;
@@ -142,6 +153,27 @@ public class LocationLockService extends Service
 
                     break;
                 }
+                case MSG_MOVE: {
+                    Intent intent = (Intent) msg.getData().get("intent");
+                    final int hack_id = intent.getIntExtra("hack_id", -1);
+                    final double hackLatitude = intent.getDoubleExtra("hack_latitude", 0);
+                    final double hackLongitude = intent.getDoubleExtra("hack_longitude", 0);
+                    ArrayList<String> fences = new ArrayList<String>();
+                    fences.add(String.format("%d", hack_id));
+                    locationClient.removeGeofences(fences, new LocationClient.OnRemoveGeofencesResultListener() {
+                        @Override
+                        public void onRemoveGeofencesByRequestIdsResult(int i, String[] strings) {
+                            Log.d(TAG, "Geofences Moved Result: " + i);
+                            addGeofence(hackLatitude, hackLongitude, hack_id);
+                        }
+
+                        @Override
+                        public void onRemoveGeofencesByPendingIntentResult(int i, PendingIntent pendingIntent) {
+                        }
+                    });
+
+                    break;
+                }
                 case MSG_HACK:
                 {
                     Intent intent = (Intent)msg.getData().get("intent");
@@ -181,35 +213,36 @@ public class LocationLockService extends Service
                         return;
                     }
 
-                    Geofence.Builder builder = new Geofence.Builder();
-                    builder.setCircularRegion(hackLatitude, hackLongitude, 40)
-                            .setExpirationDuration(24 * 60 * 60 * 1000)  // Expire a geofence in 24 hours
-                            .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT)
-                            .setRequestId(String.format("%d", hack_id));
-                    Geofence fence = builder.build();
-
-                    List<Geofence> fences = new ArrayList<Geofence>();
-                    fences.add(fence);
-
-                    Intent i = new Intent(LocationLockService.ACTION_FENCEUPDATE, null, getBaseContext(), LocationLockService.class);
-
-                    if (i != null)
-                    {
-                        PendingIntent pendingIntent = PendingIntent.getService(getBaseContext(), 0, i, 0);
-
-                        locationClient.addGeofences(fences, pendingIntent, new LocationClient.OnAddGeofencesResultListener()
-                        {
-                            @Override
-                            public void onAddGeofencesResult(int i, String[] strings)
-                            {
-                                Log.d(TAG, "add Geofences Result " + i);
-                            }
-                        });
-                    }
+                    addGeofence(hackLatitude, hackLongitude, hack_id);
 
                     break;
                 }
             }
+        }
+    }
+
+    private void addGeofence(double hackLatitude, double hackLongitude, int hack_id) {
+        Geofence.Builder builder = new Geofence.Builder();
+        builder.setCircularRegion(hackLatitude, hackLongitude, 40)
+                .setExpirationDuration(24 * 60 * 60 * 1000)  // Expire a geofence in 24 hours
+                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT)
+                .setRequestId(String.format("%d", hack_id));
+        Geofence fence = builder.build();
+
+        List<Geofence> fences = new ArrayList<Geofence>();
+        fences.add(fence);
+
+        Intent i = new Intent(LocationLockService.ACTION_FENCEUPDATE, null, getBaseContext(), LocationLockService.class);
+
+        if (i != null) {
+            PendingIntent pendingIntent = PendingIntent.getService(getBaseContext(), 0, i, 0);
+
+            locationClient.addGeofences(fences, pendingIntent, new LocationClient.OnAddGeofencesResultListener() {
+                @Override
+                public void onAddGeofencesResult(int i, String[] strings) {
+                    Log.d(TAG, "add Geofences Result " + i);
+                }
+            });
         }
     }
 
@@ -311,6 +344,8 @@ public class LocationLockService extends Service
         else if (ACTION_HACK.equals(intent.getAction()))
         {
             msg.arg2 = MSG_HACK;
+        } else if (ACTION_MOVE.equals(intent.getAction())) {
+            msg.arg2 = MSG_MOVE;
         }
 
         Bundle b = new Bundle();
@@ -339,7 +374,7 @@ public class LocationLockService extends Service
         }
     }
 
-    static Location getCurrentLocation()
+    public static Location getCurrentLocation()
     {
         return currentLocation;
     }

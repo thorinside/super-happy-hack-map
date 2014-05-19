@@ -1,11 +1,11 @@
-package org.nsdev.apps.superhappyhackmap;
+package org.nsdev.apps.superhappyhackmap.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+
 import com.google.gson.Gson;
 
-public class ComplexPreferences
-{
+public class ComplexPreferences {
 
     private static ComplexPreferences complexPreferences;
     private Context context;
@@ -13,11 +13,9 @@ public class ComplexPreferences
     private SharedPreferences.Editor editor;
     private static Gson GSON = new Gson();
 
-    private ComplexPreferences(Context context, String namePreferences, int mode)
-    {
+    private ComplexPreferences(Context context, String namePreferences, int mode) {
         this.context = context;
-        if (namePreferences == null || namePreferences.equals(""))
-        {
+        if (namePreferences == null || namePreferences.equals("")) {
             namePreferences = "complex_preferences";
         }
         preferences = context.getSharedPreferences(namePreferences, mode);
@@ -26,11 +24,9 @@ public class ComplexPreferences
 
     public static ComplexPreferences getComplexPreferences(
             Context context,
-            String namePreferences, int mode)
-    {
+            String namePreferences, int mode) {
 
-        if (complexPreferences == null)
-        {
+        if (complexPreferences == null) {
             complexPreferences = new ComplexPreferences(context,
                     namePreferences, mode);
         }
@@ -38,42 +34,31 @@ public class ComplexPreferences
         return complexPreferences;
     }
 
-    public void putObject(String key, Object object)
-    {
-        if (object == null)
-        {
+    public void putObject(String key, Object object) {
+        if (object == null) {
             throw new IllegalArgumentException("object is null");
         }
 
-        if (key.equals("") || key == null)
-        {
+        if (key.equals("") || key == null) {
             throw new IllegalArgumentException("key is empty or null");
         }
 
         editor.putString(key, GSON.toJson(object));
     }
 
-    public void commit()
-    {
+    public void commit() {
         editor.commit();
     }
 
-    public <T> T getObject(String key, Class<T> a)
-    {
+    public <T> T getObject(String key, Class<T> a) {
 
         String gson = preferences.getString(key, null);
-        if (gson == null)
-        {
+        if (gson == null) {
             return null;
-        }
-        else
-        {
-            try
-            {
+        } else {
+            try {
                 return GSON.fromJson(gson, a);
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 throw new IllegalArgumentException("Object storaged with key " + key + " is instanceof other class");
             }
         }

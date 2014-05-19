@@ -1,38 +1,35 @@
-package org.nsdev.apps.superhappyhackmap;
+package org.nsdev.apps.superhappyhackmap.events;
 
 import com.google.android.gms.maps.model.Circle;
+
+import org.nsdev.apps.superhappyhackmap.model.Hack;
 
 import java.util.List;
 
 /**
  * Created by neal 13-06-17 9:27 PM
  */
-public class CirclesCoolDownTimeChangedEvent
-{
+public class CirclesCoolDownTimeChangedEvent {
     private final List<Hack> hacks;
     private final int coolDownSeconds;
 
     private final List<Circle> circles;
 
-    public CirclesCoolDownTimeChangedEvent(List<Circle> circles, List<Hack> hacks, int coolDownSeconds)
-    {
+    public CirclesCoolDownTimeChangedEvent(List<Circle> circles, List<Hack> hacks, int coolDownSeconds) {
         this.circles = circles;
         this.hacks = hacks;
         this.coolDownSeconds = coolDownSeconds;
     }
 
-    public List<Circle> getCircles()
-    {
+    public List<Circle> getCircles() {
         return circles;
     }
 
-    public int getCoolDownSeconds()
-    {
+    public int getCoolDownSeconds() {
         return coolDownSeconds;
     }
 
-    public List<Hack> getHacks()
-    {
+    public List<Hack> getHacks() {
         return hacks;
     }
 }

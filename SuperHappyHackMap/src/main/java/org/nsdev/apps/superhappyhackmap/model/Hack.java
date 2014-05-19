@@ -1,6 +1,7 @@
-package org.nsdev.apps.superhappyhackmap;
+package org.nsdev.apps.superhappyhackmap.model;
 
 import android.content.Context;
+
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
@@ -65,7 +66,7 @@ public class Hack
         this.setCoolDownSeconds(300);
     }
 
-    static String formatTimeString(long ms)
+    public static String formatTimeString(long ms)
     {
         long s = ms / 1000;
         if (s > 60)
@@ -228,5 +229,13 @@ public class Hack
         }
 
         return android.text.format.DateFormat.getTimeFormat(context).format(c.getTime());
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
     }
 }
