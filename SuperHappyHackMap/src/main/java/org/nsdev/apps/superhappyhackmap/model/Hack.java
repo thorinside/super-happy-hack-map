@@ -1,6 +1,8 @@
-package org.nsdev.apps.superhappyhackmap;
+package org.nsdev.apps.superhappyhackmap.model;
 
 import android.content.Context;
+import android.text.format.DateFormat;
+
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
@@ -12,8 +14,7 @@ import java.util.Date;
  * Created by neal 13-03-14 4:20 PM
  */
 @DatabaseTable(tableName = "Hack")
-public class Hack
-{
+public class Hack {
 
     private static final SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm:ss a");
     public static final int FOUR_HOURS_MS = 4 * 60 * 60 * 1000;
@@ -51,13 +52,11 @@ public class Hack
     @DatabaseField(columnName = BURNED_OUT_FIELD_NAME)
     private boolean burnedOut;
 
-    public Hack()
-    {
+    public Hack() {
         // Required
     }
 
-    public Hack(double latitude, double longitude, Date firstHacked, Date lastHacked)
-    {
+    public Hack(double latitude, double longitude, Date firstHacked, Date lastHacked) {
         this.latitude = latitude;
         this.longitude = longitude;
         this.firstHacked = firstHacked;
@@ -65,86 +64,69 @@ public class Hack
         this.setCoolDownSeconds(300);
     }
 
-    static String formatTimeString(long ms)
-    {
+    public static String formatTimeString(long ms) {
         long s = ms / 1000;
-        if (s > 60)
-        {
+        if (s > 60) {
             long m = s / 60;
             s = s - 60 * m;
             return String.format("%d:%s", m, s < 10 ? "0" + s : "" + s);
-        }
-        else
-        {
+        } else {
             return String.format("0:%s", s < 10 ? "0" + s : "" + s);
         }
     }
 
-    public double getLatitude()
-    {
+    public double getLatitude() {
         return latitude;
     }
 
-    public double getLongitude()
-    {
+    public double getLongitude() {
         return longitude;
     }
 
-    public Date getFirstHacked()
-    {
+    public Date getFirstHacked() {
         return firstHacked;
     }
 
-    public void setFirstHacked(Date date)
-    {
+    public void setFirstHacked(Date date) {
         firstHacked = date;
     }
 
-    public Date getLastHacked()
-    {
+    public Date getLastHacked() {
         return lastHacked;
     }
 
-    public void setLastHacked(Date date)
-    {
+    public void setLastHacked(Date date) {
         lastHacked = date;
     }
 
-    public int getId()
-    {
+    public int getId() {
         return id;
     }
 
-    public int getHackCount()
-    {
+    public int getHackCount() {
         return hackCount;
     }
 
-    public void setHackCount(int hackCount)
-    {
+    public void setHackCount(int hackCount) {
         this.hackCount = hackCount;
     }
 
-    public int getCoolDownSeconds()
-    {
+    public int getCoolDownSeconds() {
         // Default to five minutes
         if (coolDownSeconds == 0)
             return FIVE_MINUTES_S;
         return coolDownSeconds;
     }
 
-    public void setCoolDownSeconds(int coolDownSeconds)
-    {
+    public void setCoolDownSeconds(int coolDownSeconds) {
         this.coolDownSeconds = coolDownSeconds;
     }
 
-    public void setBurnedOut(boolean burnedOut)
-    {
+    public void setBurnedOut(boolean burnedOut) {
         this.burnedOut = burnedOut;
     }
 
-    public boolean isBurnedOut()
-    {
+    public boolean isBurnedOut() {
         Date now = new Date();
         long burnoutLength = FOUR_HOURS_MS; // 4 hours in milliseconds
         long sinceFirstHack = now.getTime() - getFirstHacked().getTime();
@@ -152,14 +134,12 @@ public class Hack
         return burnedOut && !shouldBeResetByNow;
     }
 
-    public void incrementHackCount()
-    {
+    public void incrementHackCount() {
         // If the last hack was more than four hours ago, reset the hack count and reset the
         // first hacked timer.
         Date now = new Date();
         long sinceLastHack = now.getTime() - getLastHacked().getTime();
-        if (sinceLastHack > FOUR_HOURS_MS)
-        {
+        if (sinceLastHack > FOUR_HOURS_MS) {
             setFirstHacked(now);
             setBurnedOut(false);
             setHackCount(0);
@@ -169,20 +149,15 @@ public class Hack
     }
 
     /**
-     *
      * @return the time, in ms, until this area is hackable.
      */
-    public long timeUntilHackable()
-    {
+    public long timeUntilHackable() {
         Date now = new Date();
-        if (isBurnedOut())
-        {
+        if (isBurnedOut()) {
             long burnoutLength = FOUR_HOURS_MS; // 4 hours in milliseconds
             long sinceFirstHack = now.getTime() - getFirstHacked().getTime();
             return burnoutLength - sinceFirstHack;
-        }
-        else
-        {
+        } else {
             long hackAge = now.getTime() - getLastHacked().getTime();
             return (getCoolDownSeconds() * 1000 - hackAge);
         }
@@ -191,42 +166,50 @@ public class Hack
     /**
      * Return the Maximum wait time for this portal in MS
      */
-    public int getMaxWait()
-    {
-        if (isBurnedOut())
-        {
+    public int getMaxWait() {
+        if (isBurnedOut()) {
             return FOUR_HOURS_MS;
-        }
-        else
-        {
+        } else {
             return getCoolDownSeconds() * 1000;
         }
     }
 
-    public int getWait()
-    {
-        return (int)timeUntilHackable();
+    public int getWait() {
+        return (int) timeUntilHackable();
     }
 
-    public boolean isHackable()
-    {
+    public boolean isHackable() {
         return !isBurnedOut() && timeUntilHackable() <= 0;
     }
 
-    public String getNextHackableTimeString(Context context)
-    {
+    public String getNextHackableTimeString(Context context) {
         Calendar c = Calendar.getInstance();
-        if (isBurnedOut())
-        {
+        Calendar c2 = Calendar.getInstance();
+        String time;
+        if (isBurnedOut()) {
             c.setTime(getFirstHacked());
             c.add(Calendar.MILLISECOND, FOUR_HOURS_MS);
-        }
-        else
-        {
+            time = DateFormat.getTimeFormat(context).format(c.getTime());
+        } else {
             c.setTime(getLastHacked());
             c.add(Calendar.SECOND, getCoolDownSeconds());
+
+            c2.setTime(getFirstHacked());
+            c2.add(Calendar.MILLISECOND, FOUR_HOURS_MS);
+
+            time = String.format("%s\nReset: %s",
+                    DateFormat.getTimeFormat(context).format(c.getTime()),
+                    DateFormat.getTimeFormat(context).format(c2.getTime()));
         }
 
-        return android.text.format.DateFormat.getTimeFormat(context).format(c.getTime());
+        return time;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
     }
 }

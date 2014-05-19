@@ -31,4 +31,12 @@
         android:summary="@string/pref_show_hack_helper_window_summary"
         android:defaultValue="false"/>
 
+    <RingtonePreference
+        android:showDefault="true"
+        android:key="pref_notification_ringtone"
+        android:title="@string/pref_notification_ringtone"
+        android:summary="@string/pref_notification_ringtone_summary"
+        android:ringtoneType="notification">
+    </RingtonePreference>
+
 </PreferenceScreen>

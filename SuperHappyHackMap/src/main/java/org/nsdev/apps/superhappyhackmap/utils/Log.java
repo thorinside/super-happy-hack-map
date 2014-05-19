@@ -1,4 +1,4 @@
-package org.nsdev.apps.superhappyhackmap;
+package org.nsdev.apps.superhappyhackmap.utils;
 
 /**
  * A utility class that helps reduce the debug logging output of applications at

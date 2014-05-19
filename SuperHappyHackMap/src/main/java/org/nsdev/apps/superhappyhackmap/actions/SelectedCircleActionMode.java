@@ -1,4 +1,4 @@
-package org.nsdev.apps.superhappyhackmap;
+package org.nsdev.apps.superhappyhackmap.actions;
 
 import android.graphics.Color;
 import android.support.v4.app.FragmentManager;
@@ -6,9 +6,21 @@ import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Toast;
+
 import com.doomonafireball.betterpickers.hmspicker.HmsPickerBuilder;
 import com.doomonafireball.betterpickers.hmspicker.HmsPickerDialogFragment;
 import com.google.android.gms.maps.model.Circle;
+
+import org.nsdev.apps.superhappyhackmap.HackTimerApp;
+import org.nsdev.apps.superhappyhackmap.R;
+import org.nsdev.apps.superhappyhackmap.events.CirclesBurnedEvent;
+import org.nsdev.apps.superhappyhackmap.events.CirclesCoolDownTimeChangedEvent;
+import org.nsdev.apps.superhappyhackmap.events.CirclesDeletedEvent;
+import org.nsdev.apps.superhappyhackmap.events.CirclesHackedEvent;
+import org.nsdev.apps.superhappyhackmap.events.MoveCircleEvent;
+import org.nsdev.apps.superhappyhackmap.model.DatabaseManager;
+import org.nsdev.apps.superhappyhackmap.model.Hack;
 
 import java.util.HashMap;
 import java.util.List;
@@ -99,6 +111,19 @@ public class SelectedCircleActionMode implements ActionMode.Callback, HmsPickerD
                 hpb.show();
 
                 this.actionMode = actionMode;
+
+                return true;
+
+            case R.id.menu_move:
+
+                if (circles.size() == 1) {
+                    Toast.makeText(HackTimerApp.getInstance(), R.string.move_instructions, Toast.LENGTH_LONG).show();
+                    HackTimerApp.getBus().post(new MoveCircleEvent(circles.get(0)));
+
+                    this.actionMode = actionMode;
+                } else {
+                    Toast.makeText(HackTimerApp.getInstance(), R.string.move_too_many, Toast.LENGTH_LONG).show();
+                }
 
                 return true;
 
