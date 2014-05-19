@@ -112,6 +112,12 @@
         <license>Apache Software License 2.0</license>
     </notice>
 
+    <notice>
+        <name>StandOut</name>
+        <url>https://github.com/pingpongboss/StandOut</url>
+        <copyright>Copyright (C) 2012 Mark Wei</copyright>
+        <license>MIT License</license>
+    </notice>
     <!--
     <notice>
         <name>Apache Commons Lang</name>
