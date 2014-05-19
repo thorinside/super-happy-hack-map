@@ -27,7 +27,7 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.maps.android.ui.BubbleIconFactory;
+import com.google.maps.android.ui.IconGenerator;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
@@ -308,11 +308,11 @@ public class MainActivity extends FragmentActivity {
             if (h.isBurnedOut() || h.timeUntilHackable() > 0 && preferences
                     .getBoolean(SettingsActivity.PREF_SHOW_NEXT_HACK_TIME, true)) {
 
-                BubbleIconFactory factory = new BubbleIconFactory(MainActivity.this);
+                IconGenerator factory = new IconGenerator(MainActivity.this);
                 if (h.isBurnedOut())
-                    factory.setStyle(BubbleIconFactory.Style.DEFAULT);
+                    factory.setStyle(IconGenerator.STYLE_DEFAULT);
                 else
-                    factory.setStyle(BubbleIconFactory.Style.RED);
+                    factory.setStyle(IconGenerator.STYLE_RED);
                 factory.setContentRotation(90);
                 final Bitmap bmp = factory.makeIcon(h.getNextHackableTimeString(MainActivity.this));
 
