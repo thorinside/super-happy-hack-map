@@ -36,6 +36,46 @@ android {
         }
     }
 
+    productFlavors {
+
+        def getVersionCode = { ->
+            try {
+                def code = new ByteArrayOutputStream()
+                exec {
+                    commandLine 'git', 'tag', '--list'
+                    standardOutput = code
+                }
+                return code.toString().split("\n").size()
+            }
+            catch (ignored) {
+                return -1;
+            }
+        }
+
+        def getVersionName = { ->
+            try {
+                def stdout = new ByteArrayOutputStream()
+                exec {
+                    commandLine 'git', 'describe', '--match=[^(hudson)].*', '--tags', '--dirty'
+                    standardOutput = stdout
+                }
+                return stdout.toString().trim()
+            }
+            catch (ignored) {
+                return null;
+            }
+        }
+
+        development {
+            versionName getVersionName()
+            versionCode getVersionCode()
+        }
+        production {
+            versionName getVersionName()
+            versionCode getVersionCode()
+        }
+    }
+
 }
 
 dependencies {
