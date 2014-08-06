@@ -1,14 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="org.nsdev.apps.superhappyhackmap"
-          android:versionCode="1"
-          android:versionName="0.1">
+          package="org.nsdev.apps.superhappyhackmap">
 
-<uses-sdk
-        android:minSdkVersion="14"
-        android:targetSdkVersion="19"/>
-
-    <uses-permission
+<uses-permission
         android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission
         android:name="android.permission.CHANGE_WIFI_STATE"/>
@@ -30,8 +24,6 @@
     <permission
         android:name="org.nsdev.apps.superhappyhackmap.permission.MAPS_RECEIVE"
         android:protectionLevel="signature"/>
-
-    <uses-permission android:name="org.nsdev.apps.superhappyhackmap.permission.MAPS_RECEIVE"/>
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
