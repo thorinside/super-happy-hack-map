@@ -1,3 +1,1 @@
 include ':SuperHappyHackMap'
-include ':libraries:AndroidBetterPickers:library'
-include ':libraries:StandOut:library'
