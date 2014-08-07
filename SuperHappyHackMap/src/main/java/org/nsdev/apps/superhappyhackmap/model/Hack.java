@@ -3,6 +3,7 @@ package org.nsdev.apps.superhappyhackmap.model;
 import android.content.Context;
 import android.text.format.DateFormat;
 
+import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
@@ -32,7 +33,7 @@ public class Hack {
     private double longitude;
 
     public static final String FIRST_HACKED_FIELD_NAME = "firstHacked";
-    @DatabaseField(columnName = FIRST_HACKED_FIELD_NAME)
+    @DatabaseField(columnName = FIRST_HACKED_FIELD_NAME, dataType = DataType.DATE_LONG)
     private Date firstHacked;
 
     public static final String COOL_DOWN_SECONDS_FIELD_NAME = "coolDownSeconds";
@@ -41,7 +42,7 @@ public class Hack {
     private int coolDownSeconds;
 
     public static final String LAST_HACKED_FIELD_NAME = "lastHacked";
-    @DatabaseField(columnName = LAST_HACKED_FIELD_NAME)
+    @DatabaseField(columnName = LAST_HACKED_FIELD_NAME, dataType = DataType.DATE_LONG)
     private Date lastHacked;
 
     public static final String HACK_COUNT_FIELD_NAME = "hackCount";
