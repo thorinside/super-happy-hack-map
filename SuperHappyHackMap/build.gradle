@@ -71,6 +71,7 @@ android {
             versionCode getVersionCode()
         }
         production {
+            applicationId "org.nsdev.apps.superhappyhackmap.production"
             versionName getVersionName()
             versionCode getVersionCode()
         }
