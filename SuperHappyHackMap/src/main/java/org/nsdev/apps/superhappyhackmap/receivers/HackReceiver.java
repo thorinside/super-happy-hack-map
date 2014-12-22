@@ -155,6 +155,8 @@ public class HackReceiver extends BroadcastReceiver {
         wearableExtender.setBackground(BitmapFactory.decodeResource(HackTimerApp.getInstance().getResources(), R.drawable.ic_launcher));
         b.extend(wearableExtender);
 
+        b.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+
         NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         nm.notify(0, b.build());
 
