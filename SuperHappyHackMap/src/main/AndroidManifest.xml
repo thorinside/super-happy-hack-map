@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="org.nsdev.apps.superhappyhackmap">
+<manifest
+    package="org.nsdev.apps.superhappyhackmap"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
-<uses-permission
+    <uses-permission
         android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission
         android:name="android.permission.CHANGE_WIFI_STATE"/>
@@ -22,10 +23,10 @@
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
 
     <permission
-        android:name="org.nsdev.apps.superhappyhackmap.permission.MAPS_RECEIVE"
+        android:name="${applicationId}.permission.MAPS_RECEIVE"
         android:protectionLevel="signature"/>
 
-    <uses-permission android:name="org.nsdev.apps.superhappyhackmap.permission.MAPS_RECEIVE"/>
+    <uses-permission android:name="${applicationId}.permission.MAPS_RECEIVE"/>
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
@@ -36,10 +37,10 @@
         android:required="true"/>
 
     <application
+        android:name=".HackTimerApp"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/Theme.Shhm"
-        android:name=".HackTimerApp">
+        android:theme="@style/Theme.Shhm">
 
         <activity
             android:name=".activities.MainActivity"
@@ -50,17 +51,22 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activities.SettingsActivity"/>
+        <activity
+            android:name=".activities.SettingsActivity"
+            android:parentActivityName=".activities.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.MainActivity"/>
+        </activity>
 
         <service android:name=".services.LocationLockService"/>
 
         <receiver android:name=".receivers.HackReceiver">
-        <intent-filter>
-                <action android:name="android.intent.action.SCREEN_OFF"/>
+            <intent-filter>
+            <action android:name="android.intent.action.SCREEN_OFF"/>
                 <action android:name="android.intent.action.SCREEN_ON"/>
             </intent-filter>
         </receiver>
-
 
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"

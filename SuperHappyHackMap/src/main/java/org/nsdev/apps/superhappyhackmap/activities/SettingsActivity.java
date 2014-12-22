@@ -1,15 +1,15 @@
 package org.nsdev.apps.superhappyhackmap.activities;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
+import android.support.v7.app.ActionBarActivity;
 
 import org.nsdev.apps.superhappyhackmap.R;
 
 /**
  * Created by neal 13-06-02 1:21 PM
  */
-public class SettingsActivity extends Activity {
+public class SettingsActivity extends ActionBarActivity {
 
     public static final String PREF_TRACK_DISTANCE = "pref_track_distance";
     public static final String PREF_HIGH_PRIORITY = "pref_high_priority";
@@ -30,6 +30,8 @@ public class SettingsActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.settings);
 
         // Display the fragment as the main content.
         getFragmentManager().beginTransaction()

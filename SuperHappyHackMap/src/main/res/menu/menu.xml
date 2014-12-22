@@ -1,29 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-            android:id="@+id/menu_hack"
-            android:icon="@drawable/ic_location_place"
-            android:showAsAction="ifRoom"
-            android:title="@string/hack">
+        android:id="@+id/menu_hack"
+        android:icon="@drawable/ic_location_place"
+        android:title="@string/hack"
+        app:showAsAction="ifRoom">
     </item>
 
     <item
         android:id="@+id/menu_clear_all"
-        android:showAsAction="never"
-        android:title="@string/clear_all">
+        android:title="@string/clear_all"
+        app:showAsAction="never">
     </item>
 
     <item
-            android:id="@+id/menu_settings"
-            android:showAsAction="never"
-            android:title="@string/settings">
+        android:id="@+id/menu_settings"
+        android:title="@string/settings"
+        app:showAsAction="never">
     </item>
 
     <item
-            android:id="@+id/menu_about"
-            android:showAsAction="never"
-            android:title="@string/about">
+        android:id="@+id/menu_about"
+        android:title="@string/about"
+        app:showAsAction="never">
     </item>
 
 </menu>

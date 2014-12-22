@@ -88,7 +88,7 @@ public class HackReceiver extends BroadcastReceiver {
         Intent deleteIntent = new Intent(ACTION_DELETE, null, context, HackReceiver.class);
         b.setDeleteIntent(PendingIntent.getBroadcast(context, 0, deleteIntent, PendingIntent.FLAG_CANCEL_CURRENT));
 
-        b.setSmallIcon(R.drawable.ic_launcher);
+        b.setSmallIcon(R.drawable.ic_notification_flat);
         b.setAutoCancel(false);
 
         Intent hack = new Intent(ACTION_HACK, null, context, HackReceiver.class);

@@ -8,8 +8,8 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
-import android.support.v4.app.FragmentActivity;
-import android.view.ActionMode;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -53,13 +53,12 @@ import java.util.List;
 import de.psdev.licensesdialog.LicensesDialogFragment;
 import wei.mark.standout.StandOutWindow;
 
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends ActionBarActivity {
     private static String TAG = "SHHM";
-    private SupportMapFragment mapFragment;
 
     private GoogleMap map;
-    private ArrayList<Circle> circles = new ArrayList<Circle>();
-    private ArrayList<Marker> markers = new ArrayList<Marker>();
+    private ArrayList<Circle> circles = new ArrayList<>();
+    private ArrayList<Marker> markers = new ArrayList<>();
     private boolean hasZoomed = false;
     private SharedPreferences preferences;
     private Circle mMovingCircle;
@@ -82,7 +81,7 @@ public class MainActivity extends FragmentActivity {
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-        mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
 
         map = mapFragment.getMap();
 
@@ -160,10 +159,10 @@ public class MainActivity extends FragmentActivity {
                     List<Circle> tappedCircles = findTappedCircles(latLng.latitude, latLng.longitude);
 
                     if (tappedCircles.size() > 0) {
-                        selectedCircleActionMode = new SelectedCircleActionMode(getSupportFragmentManager());
+                        selectedCircleActionMode = new SelectedCircleActionMode(MainActivity.this);
                         selectedCircleActionMode.setCircles(tappedCircles);
 
-                        List<Hack> tappedHacks = new ArrayList<Hack>();
+                        List<Hack> tappedHacks = new ArrayList<>();
                         for (Circle c : tappedCircles) {
                             LatLng center = c.getCenter();
                             Hack h = DatabaseManager.getInstance().findHackAt(center);
@@ -172,7 +171,7 @@ public class MainActivity extends FragmentActivity {
 
                         selectedCircleActionMode.setHacks(tappedHacks);
 
-                        mCurrentActionMode = startActionMode(selectedCircleActionMode);
+                        mCurrentActionMode = startSupportActionMode(selectedCircleActionMode);
                     }
                 }
             });
@@ -192,16 +191,16 @@ public class MainActivity extends FragmentActivity {
     SelectedCircleActionMode selectedCircleActionMode = null;
 
     @Override
-    public void onActionModeFinished(ActionMode mode) {
+    public void onSupportActionModeFinished(ActionMode mode) {
         selectedCircleActionMode = null;
         mCurrentActionMode = null;
-        super.onActionModeFinished(mode);
+        super.onSupportActionModeFinished(mode);
         onHackDatabaseUpdated(null);
     }
 
     private List<Circle> findTappedCircles(double latitude, double longitude) {
 
-        ArrayList<Circle> circleList = new ArrayList<Circle>();
+        ArrayList<Circle> circleList = new ArrayList<>();
 
         for (Circle c : circles) {
             float[] results = new float[3];
@@ -364,9 +363,9 @@ public class MainActivity extends FragmentActivity {
                 final Bitmap bmp = factory.makeIcon(h.getNextHackableTimeString(MainActivity.this));
 
                 markers.add(map.addMarker(new MarkerOptions()
-                        .position(center)
-                        .icon(BitmapDescriptorFactory.fromBitmap(bmp))
-                        .anchor(0.5f, 0.75f)
+                                .position(center)
+                                .icon(BitmapDescriptorFactory.fromBitmap(bmp))
+                                .anchor(0.5f, 0.75f)
                 ));
             }
         }
@@ -448,7 +447,7 @@ public class MainActivity extends FragmentActivity {
                     deleteHack(h);
                 }
 
-                UndoBarController.show(this, getString(R.string.delete_all_undo_prompt), new UndoBarController.UndoListener() {
+                new UndoBarController.UndoBar(this).message(getString(R.string.delete_all_undo_prompt)).listener(new UndoBarController.UndoListener() {
                     @Override
                     public void onUndo(Parcelable parcelable) {
                         for (Hack h : allHacks) {

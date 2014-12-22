@@ -19,4 +19,7 @@
 
 <resources>
     <color name="pressed_shhm">#CC0099CC</color>
+    <color name="main_color">#006b9f</color>
+    <color name="main_color_dark">#004777</color>
+    <color name="main_accent">#FF5722</color>
 </resources>
