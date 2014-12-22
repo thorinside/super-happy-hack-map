@@ -19,7 +19,7 @@
         notification shade.
     </string>
     <string name="ready">Ready</string>
-    <string name="hackable_in">Hackable in</string>
+    <string name="til_next_hack">until hackable</string>
     <string name="hacks">hacks</string>
     <string name="burned_out">Burned Out</string>
     <string name="hack_unavailable">Running Hot</string>

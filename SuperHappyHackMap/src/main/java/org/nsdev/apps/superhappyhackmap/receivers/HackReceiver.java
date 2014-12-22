@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -73,6 +74,8 @@ public class HackReceiver extends BroadcastReceiver {
 
         NotificationCompat.Builder b = new NotificationCompat.Builder(context);
 
+        b.setColor(HackTimerApp.getInstance().getResources().getColor(R.color.main_color));
+
         if (highPriority) {
             b.setPriority(Integer.MAX_VALUE);
         }
@@ -108,15 +111,10 @@ public class HackReceiver extends BroadcastReceiver {
                 b.setProgress(h.getMaxWait(), h.getWait(), false);
                 if (trackDistance) {
                     float[] results = new float[3];
-                    Location.distanceBetween(currentLocation.getLatitude(), currentLocation.getLongitude(), h
-                            .getLatitude(), h.getLongitude(), results);
-
-                    b.setContentTitle(String.format("%.2fm %s: %s", results[0], context
-                            .getString(R.string.hackable_in), Hack.formatTimeString(h.timeUntilHackable())));
+                    Location.distanceBetween(currentLocation.getLatitude(), currentLocation.getLongitude(), h.getLatitude(), h.getLongitude(), results);
+                    b.setContentTitle(String.format("%s %s (%.2fm)", Hack.formatTimeString(h.timeUntilHackable()), context.getString(R.string.til_next_hack), results[0]));
                 } else {
-                    b.setContentTitle(String
-                            .format("%s: %s", context.getString(R.string.hackable_in), Hack.formatTimeString(h
-                                    .timeUntilHackable())));
+                    b.setContentTitle(String.format("%s %s", Hack.formatTimeString(h.timeUntilHackable()), context.getString(R.string.til_next_hack)));
                 }
 
                 if (!h.isBurnedOut()) {
@@ -151,6 +149,11 @@ public class HackReceiver extends BroadcastReceiver {
             }
             b.setVibrate(new long[]{0, 2000});
         }
+
+        // Wearable extensions
+        NotificationCompat.WearableExtender wearableExtender = new NotificationCompat.WearableExtender();
+        wearableExtender.setBackground(BitmapFactory.decodeResource(HackTimerApp.getInstance().getResources(), R.drawable.ic_launcher));
+        b.extend(wearableExtender);
 
         NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         nm.notify(0, b.build());
