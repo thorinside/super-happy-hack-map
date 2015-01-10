@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/SuperHappyHackMap/SuperHappyHackMap.iml" filepath="$PROJECT_DIR$/SuperHappyHackMap/SuperHappyHackMap.iml" />
       <module fileurl="file://$PROJECT_DIR$/super-happy-hack-map.iml" filepath="$PROJECT_DIR$/super-happy-hack-map.iml" />
+      <module fileurl="file://$PROJECT_DIR$/tdd/tdd.iml" filepath="$PROJECT_DIR$/tdd/tdd.iml" />
     </modules>
   </component>
 </project>
