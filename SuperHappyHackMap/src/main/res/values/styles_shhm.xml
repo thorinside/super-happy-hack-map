@@ -19,10 +19,11 @@
 
 <resources>
 
-    <style name="Theme.Shhm" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="Theme.Shhm" parent="@style/Theme.AppCompat.Light.DarkActionBar">
         <item name="colorPrimary">@color/main_color</item>
         <item name="colorPrimaryDark">@color/main_color_dark</item>
         <item name="colorAccent">@color/main_accent</item>
+        <item name="colorControlNormal">@color/main_color</item>
     </style>
 
 </resources>

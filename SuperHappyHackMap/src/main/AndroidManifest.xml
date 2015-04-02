@@ -63,7 +63,7 @@
 
         <receiver android:name=".receivers.HackReceiver">
             <intent-filter>
-            <action android:name="android.intent.action.SCREEN_OFF"/>
+                <action android:name="android.intent.action.SCREEN_OFF"/>
                 <action android:name="android.intent.action.SCREEN_ON"/>
             </intent-filter>
         </receiver>
