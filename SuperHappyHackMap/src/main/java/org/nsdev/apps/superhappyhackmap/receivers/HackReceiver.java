@@ -1,6 +1,7 @@
 package org.nsdev.apps.superhappyhackmap.receivers;
 
 import android.app.AlarmManager;
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -31,6 +32,7 @@ import org.nsdev.apps.superhappyhackmap.services.HackWindow;
 import org.nsdev.apps.superhappyhackmap.services.LocationLockService;
 import org.nsdev.apps.superhappyhackmap.utils.Log;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -51,6 +53,7 @@ public class HackReceiver extends BroadcastReceiver {
     public static final String ACTION_MOVE = "org.nsdev.superhappyhackmap.action.MOVE";
     public static final String ACTION_TRANSITION = "org.nsdev.superhappyhackmap.action.TRANSITION";
     public static final String ACTION_SET_COOLDOWN = "org.nsdev.superhappyhackmap.action.SET_COOLDOWN";
+    public static final String ACTION_23_HOUR_REMINDER = "org.nsdev.superhappyhackmap.action.23_HOUR_REMINDER";
 
     private static long lastUpdate = 0L;
     private static int hackCount;
@@ -244,6 +247,11 @@ public class HackReceiver extends BroadcastReceiver {
                 createHackAlarm(context, hack);
                 updateNotification(context, false);
                 schedNext(context);
+
+                // Update the most recent hack
+                Date mostRecentHackTime = new Date();
+                DatabaseManager.getInstance().setMostRecentHackTime(mostRecentHackTime);
+                create23HourAlarm(context, mostRecentHackTime);
             }
 
         } else if (intent.getAction().equals(ACTION_TRIGGER)) {
@@ -345,6 +353,29 @@ public class HackReceiver extends BroadcastReceiver {
             createHackAlarm(context, h);
 
             HackTimerApp.getBus().post(new HackDatabaseUpdatedEvent());
+        } else if (intent.getAction().equals(ACTION_23_HOUR_REMINDER)) {
+
+            Uri uri;
+            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+            final String ringtone = sharedPref.getString("pref_notification_ringtone", "DEFAULT");
+            if ("DEFAULT".equals(ringtone) || ringtone == null) {
+                uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+            } else {
+                uri = Uri.parse(ringtone);
+            }
+
+            Notification notification = new NotificationCompat.Builder(context)
+                    .setAutoCancel(true)
+                    .setSmallIcon(R.drawable.ic_notification_flat)
+                    .setVibrate(new long[]{0, 2000})
+                    .setSound(uri)
+                    .setContentTitle("Sojourner Warning")
+                    .setContentText("You haven't hacked a portal in 23 hours! Go Now!").build();
+
+            NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+            manager.notify(911911, notification);
+
         } else {
             if (DEBUG) {
                 Log.e(TAG, "Got: " + intent.getAction());
@@ -440,6 +471,22 @@ public class HackReceiver extends BroadcastReceiver {
         long t = SystemClock.elapsedRealtime() + hack.timeUntilHackable();
 
         am.set(AlarmManager.ELAPSED_REALTIME, t, hackAlarm);
+    }
+
+    public static void create23HourAlarm(Context context, Date mostRecentHackTime) {
+        Calendar time = Calendar.getInstance();
+        time.setTime(mostRecentHackTime);
+        time.add(Calendar.HOUR, 23);
+
+        Log.e(TAG, "Setting 23 hour alarm for: " + time.toString());
+
+        AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(ACTION_23_HOUR_REMINDER, null, context, HackReceiver.class);
+
+        PendingIntent notificationAlarm = PendingIntent
+                .getBroadcast(context, 911911, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        am.set(AlarmManager.RTC_WAKEUP, time.getTimeInMillis(), notificationAlarm);
     }
 
 }
