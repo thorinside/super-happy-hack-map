@@ -1,5 +1,0 @@
-evaluationDependsOn(':SuperHappyHackMap')
-ext.androidProject = 'SuperHappyHackMap'
-ext.variant = 'developmentDebug'
-apply plugin: 'cobertura' // add if you want code coverage
-apply plugin: 'com.kageiit.robojava'
