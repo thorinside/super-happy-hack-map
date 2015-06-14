@@ -12,19 +12,25 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:layout_marginBottom="32dp"
-        android:layout_marginRight="16dp"
-        android:layout_marginEnd="16dp"
+    <android.support.design.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:src="@drawable/ic_action_beenhere"
-        android:onClick="onHackClicked"
-        app:borderWidth="0dp"
-        />
+        android:id="@+id/snackbar_position">
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="32dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_gravity="end|right|bottom"
+            android:src="@drawable/ic_action_beenhere"
+            android:onClick="onHackClicked"
+            app:borderWidth="0dp"
+            />
+
+    </android.support.design.widget.CoordinatorLayout>
 
 </RelativeLayout>

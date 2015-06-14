@@ -454,7 +454,7 @@ public class MainActivity extends ActionBarActivity {
                     deleteHack(h);
                 }
 
-                Snackbar.make(findViewById(R.id.map), R.string.delete_all_undo_prompt, Snackbar.LENGTH_LONG)
+                Snackbar.make(findViewById(R.id.snackbar_position), R.string.delete_all_undo_prompt, Snackbar.LENGTH_LONG)
                         .setAction(R.string.undo, new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {

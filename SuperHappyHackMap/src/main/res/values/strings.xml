@@ -33,7 +33,7 @@
     <string name="set_cooldown">Set Cooldown Time</string>
     <string name="about">About</string>
     <string name="clear_all">Clear All</string>
-    <string name="delete_all_undo_prompt">Undo clear all?</string>
+    <string name="delete_all_undo_prompt">All hack zones cleared.</string>
     <string name="pref_show_hack_helper_window">Show Hack Helper</string>
     <string name="pref_show_hack_helper_window_summary">Show a small, on screen, button that can be used to register hacks more easily.</string>
     <string name="hack_window_notification_text">Click to close Hack Helper window.</string>
