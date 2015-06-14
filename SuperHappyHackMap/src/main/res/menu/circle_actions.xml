@@ -7,7 +7,7 @@
 
     <item
         android:id="@+id/menu_hack"
-        android:icon="@drawable/ic_location_place"
+        android:icon="@drawable/ic_action_beenhere"
         app:showAsAction="always|withText"
         android:title="@string/hack"
         >
