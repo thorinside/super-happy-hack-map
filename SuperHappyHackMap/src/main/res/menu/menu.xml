@@ -4,10 +4,17 @@
       xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/menu_hack"
-        android:icon="@drawable/ic_location_place"
-        android:title="@string/hack"
+        android:id="@+id/menu_reset_last_hack"
+        android:icon="@drawable/ic_reset_last_hack"
+        android:title="@string/reset_hack_time_menu"
         app:showAsAction="ifRoom">
+    </item>
+
+    <item
+        android:id="@+id/menu_hack"
+        android:icon="@drawable/ic_action_beenhere"
+        android:title="@string/hack"
+        app:showAsAction="never">
     </item>
 
     <item

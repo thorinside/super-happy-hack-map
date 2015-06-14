@@ -24,7 +24,7 @@
     <string name="burned_out">Burned Out</string>
     <string name="hack_unavailable">Running Hot</string>
     <string name="hack_available">Hack Available</string>
-    <string name="mark_burned_out">Mark as Burned</string>
+    <string name="mark_burned_out">Burn</string>
     <string name="remembering_geofence">Remembering Geofence</string>
     <string name="pref_show_next_hack_time">Show Hack Time</string>
     <string name="pref_show_next_hack_time_summary">Show next hack time on hot and burned out zones.</string>
@@ -43,4 +43,10 @@
     <string name="move_too_many">You can only move one zone at a time.</string>
     <string name="pref_notification_ringtone">Notification Ringtone</string>
     <string name="pref_notification_ringtone_summary">Tap this to set the notification ringtone for when a hack becomes available.</string>
+    <string name="sojourner_warning">You haven\'t hacked a portal in 23 hours! Go Now!</string>
+    <string name="sojourner_warning_title">Sojourner Warning</string>
+    <string name="reset_hack_time">Reset</string>
+    <string name="reset_hack_time_menu">Sojourner Reset</string>
+    <string name="undo">Undo</string>
+    <string name="sojourner_hack_time_reset">Sojourner Hack Alarm Reset</string>
 </resources>

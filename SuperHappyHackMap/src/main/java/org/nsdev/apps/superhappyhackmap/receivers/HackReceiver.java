@@ -54,6 +54,10 @@ public class HackReceiver extends BroadcastReceiver {
     public static final String ACTION_TRANSITION = "org.nsdev.superhappyhackmap.action.TRANSITION";
     public static final String ACTION_SET_COOLDOWN = "org.nsdev.superhappyhackmap.action.SET_COOLDOWN";
     public static final String ACTION_23_HOUR_REMINDER = "org.nsdev.superhappyhackmap.action.23_HOUR_REMINDER";
+    public static final String ACTION_RESET_LAST_HACK
+            = "org.nsdev.superhappyhackmap.action.RESET_LAST_HACK" +
+            "";
+    public static final float MAX_MATCHED_DISTANCE = 120f; // Will match a hack zone within 120m
 
     private static long lastUpdate = 0L;
     private static int hackCount;
@@ -99,12 +103,15 @@ public class HackReceiver extends BroadcastReceiver {
 
         Intent hack = new Intent(ACTION_HACK, null, context, HackReceiver.class);
         hack.putExtra("runningHotTime", 300);
-        b.addAction(R.drawable.ic_location_place, context.getString(R.string.btn_hack), PendingIntent
+        b.addAction(R.drawable.ic_action_beenhere, context.getString(R.string.btn_hack), PendingIntent
                 .getBroadcast(context, 0, hack, PendingIntent.FLAG_CANCEL_CURRENT));
 
         Intent burnout = new Intent(ACTION_BURNOUT, null, context, HackReceiver.class);
         b.addAction(R.drawable.ic_menu_burn, context.getString(R.string.mark_burned_out), PendingIntent
                 .getBroadcast(context, 0, burnout, PendingIntent.FLAG_CANCEL_CURRENT));
+
+        Intent resetHackTime = new Intent(ACTION_RESET_LAST_HACK, null, context, HackReceiver.class);
+        b.addAction(R.drawable.ic_reset_last_hack, context.getString(R.string.reset_hack_time), PendingIntent.getBroadcast(context, 0, resetHackTime, PendingIntent.FLAG_CANCEL_CURRENT));
 
         if (LocationLockService.getCurrentLocation() != null) {
             Location currentLocation = LocationLockService.getCurrentLocation();
@@ -248,10 +255,7 @@ public class HackReceiver extends BroadcastReceiver {
                 updateNotification(context, false);
                 schedNext(context);
 
-                // Update the most recent hack
-                Date mostRecentHackTime = new Date();
-                DatabaseManager.getInstance().setMostRecentHackTime(mostRecentHackTime);
-                create23HourAlarm(context, mostRecentHackTime);
+                updateMostRecentHack(context);
             }
 
         } else if (intent.getAction().equals(ACTION_TRIGGER)) {
@@ -364,23 +368,39 @@ public class HackReceiver extends BroadcastReceiver {
                 uri = Uri.parse(ringtone);
             }
 
+            Intent resetHackTime = new Intent(ACTION_RESET_LAST_HACK, null, context, HackReceiver.class);
+
             Notification notification = new NotificationCompat.Builder(context)
                     .setAutoCancel(true)
                     .setSmallIcon(R.drawable.ic_notification_flat)
                     .setVibrate(new long[]{0, 2000})
                     .setSound(uri)
-                    .setContentTitle("Sojourner Warning")
-                    .setContentText("You haven't hacked a portal in 23 hours! Go Now!").build();
+                    .setContentTitle(context.getString(R.string.sojourner_warning_title))
+                    .addAction(R.drawable.ic_reset_last_hack, context.getString(R.string.reset_hack_time), PendingIntent.getBroadcast(context, 0, resetHackTime, PendingIntent.FLAG_CANCEL_CURRENT))
+                    .setContentText(context.getString(R.string.sojourner_warning)).build();
 
             NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
             manager.notify(911911, notification);
+
+        } else if (intent.getAction().equals(ACTION_RESET_LAST_HACK)) {
+
+            Toast.makeText(context, context.getString(R.string.sojourner_hack_time_reset), Toast.LENGTH_LONG).show();
+
+            updateMostRecentHack(context);
 
         } else {
             if (DEBUG) {
                 Log.e(TAG, "Got: " + intent.getAction());
             }
         }
+    }
+
+    private void updateMostRecentHack(Context context) {
+        // Update the most recent hack
+        Date mostRecentHackTime = new Date();
+        DatabaseManager.getInstance().setMostRecentHackTime(mostRecentHackTime);
+        create23HourAlarm(context, mostRecentHackTime);
     }
 
     private Hack findNearestUnexpiredHack(Location currentLocation) {
@@ -408,32 +428,14 @@ public class HackReceiver extends BroadcastReceiver {
 
         for (Hack h : hacks) {
             float[] results = new float[3];
-            Location.distanceBetween(currentLocation.getLatitude(), currentLocation.getLongitude(), h.getLatitude(), h
-                    .getLongitude(), results);
+            Location.distanceBetween(currentLocation.getLatitude(), currentLocation.getLongitude(), h.getLatitude(), h.getLongitude(), results);
             float distance = results[0];
             if (DEBUG) {
                 Log.d(TAG, String.format("Distance: %.2f", distance));
             }
 
-            if (false && h.getHackCount() == 4 && h.timeUntilHackable() <= 0) {
-                if (DEBUG) {
-                    Log.e(TAG, "Removing old hack.");
-                }
-                DatabaseManager.getInstance().deleteHack(h);
-                synchronized (cacheLock) {
-                    if (DEBUG) {
-                        Log.d(TAG, "Dumping Cache");
-                    }
-                    cachedHacks = null;
-                }
-
-                HackTimerApp.getBus().post(new HackDatabaseUpdatedEvent());
-            } else {
-                if (distance < 40f) {
-                    if (distance < closestDistance) {
-                        closestHack = h;
-                    }
-                }
+            if (distance < MAX_MATCHED_DISTANCE && distance < closestDistance) {
+                closestHack = h;
             }
         }
 

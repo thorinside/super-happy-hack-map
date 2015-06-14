@@ -6,14 +6,14 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.preference.PreferenceManager;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
-import com.cocosw.undobar.UndoBarController;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -172,6 +172,10 @@ public class MainActivity extends ActionBarActivity {
                         selectedCircleActionMode.setHacks(tappedHacks);
 
                         mCurrentActionMode = startSupportActionMode(selectedCircleActionMode);
+                        if (mCurrentActionMode != null) {
+                            // Fix for bug https://code.google.com/p/android/issues/detail?id=159527
+                            mCurrentActionMode.invalidate();
+                        }
                     }
                 }
             });
@@ -441,23 +445,29 @@ public class MainActivity extends ActionBarActivity {
                 final LicensesDialogFragment fragment = LicensesDialogFragment.newInstance(R.raw.notices, true);
                 fragment.show(getSupportFragmentManager(), null);
                 return true;
+            case R.id.menu_reset_last_hack:
+                sendBroadcast(new Intent(HackReceiver.ACTION_RESET_LAST_HACK, null, getBaseContext(), HackReceiver.class));
+                return true;
             case R.id.menu_clear_all:
                 final List<Hack> allHacks = DatabaseManager.getInstance().getAllHacks();
                 for (Hack h : allHacks) {
                     deleteHack(h);
                 }
 
-                new UndoBarController.UndoBar(this).message(getString(R.string.delete_all_undo_prompt)).listener(new UndoBarController.UndoListener() {
-                    @Override
-                    public void onUndo(Parcelable parcelable) {
-                        for (Hack h : allHacks) {
-                            DatabaseManager.getInstance().save(h);
-                            updateCooldownForHack(h);
-                        }
-                        onHackDatabaseUpdated(new HackDatabaseUpdatedEvent());
-                        HackReceiver.trigger(getBaseContext());
-                    }
-                });
+                Snackbar.make(findViewById(R.id.map), R.string.delete_all_undo_prompt, Snackbar.LENGTH_LONG)
+                        .setAction(R.string.undo, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                for (Hack h : allHacks) {
+                                    DatabaseManager.getInstance().save(h);
+                                    updateCooldownForHack(h);
+                                }
+                                onHackDatabaseUpdated(new HackDatabaseUpdatedEvent());
+                                HackReceiver.trigger(getBaseContext());
+                            }
+                        })
+                        .show();
+
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -467,6 +477,10 @@ public class MainActivity extends ActionBarActivity {
     @Subscribe
     public void onMoveCircleEvent(MoveCircleEvent event) {
         mMovingCircle = event.getCircle();
+    }
+
+    public void onHackClicked(View button) {
+        sendBroadcast(new Intent(HackReceiver.ACTION_HACK, null, getBaseContext(), HackReceiver.class));
     }
 
 }

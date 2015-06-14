@@ -105,10 +105,11 @@ public class SelectedCircleActionMode implements ActionMode.Callback {
                         .content("Choose the ")
                         .title("Cooldown Time Modifiers")
                         .items(new String[]{"Common HS", "Rare HS", "VR HS"})
-                        .itemsCallbackMultiChoice(null, new MaterialDialog.ListCallbackMulti() {
+                        .itemsCallbackMultiChoice(null, new MaterialDialog.ListCallbackMultiChoice() {
+
                             @DebugLog
                             @Override
-                            public void onSelection(MaterialDialog materialDialog, Integer[] which, CharSequence[] charSequences) {
+                            public boolean onSelection(MaterialDialog materialDialog, Integer[] which, CharSequence[] charSequences) {
 
                                 ArrayList<Integer> mods = new ArrayList<>();
                                 Collections.addAll(mods, which);
@@ -149,6 +150,7 @@ public class SelectedCircleActionMode implements ActionMode.Callback {
 
                                 double cooldownDecrease = 1.0 - modifiers;
                                 mSeconds = mSeconds * (1.0 - cooldownDecrease);
+                                return true;
                             }
                         })
                         .positiveText("Choose Modifiers")
@@ -201,8 +203,10 @@ public class SelectedCircleActionMode implements ActionMode.Callback {
 
         for (Circle c : circles) {
             PreviousCircleColor old = prev.get(c);
-            c.setStrokeColor(old.stroke);
-            c.setFillColor(old.fill);
+            if (old != null) {
+                c.setStrokeColor(old.stroke);
+                c.setFillColor(old.fill);
+            }
 
             prev.put(c, old);
         }
