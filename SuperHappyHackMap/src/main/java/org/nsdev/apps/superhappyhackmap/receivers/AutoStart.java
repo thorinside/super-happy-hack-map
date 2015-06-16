@@ -19,6 +19,8 @@ public class AutoStart extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent broadcastIntent) {
         Date mostRecentHackTime = DatabaseManager.getInstance().getMostRecentHackTime();
-        HackReceiver.create23HourAlarm(context, mostRecentHackTime);
+        if (mostRecentHackTime != null) {
+            HackReceiver.create23HourAlarm(context, mostRecentHackTime);
+        }
     }
 }
