@@ -76,6 +76,15 @@
             </intent-filter>
         </receiver>
 
+        <receiver android:name=".receivers.SojournerAppWidgetProvider">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/sojourner_appwidget_info"/>
+        </receiver>
+
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyAYWh_joqENvHS9Sz76bWmCRAdnkTeCD4Y"/>

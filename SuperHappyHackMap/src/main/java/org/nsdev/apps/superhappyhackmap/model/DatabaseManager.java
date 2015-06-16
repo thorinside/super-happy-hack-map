@@ -99,7 +99,8 @@ public class DatabaseManager {
 
     public Date getMostRecentHackTime() {
         try {
-            return getHelper().getMostRecentHackDao().queryForId(0).getHackTime();
+            MostRecentHack mostRecentHack = getHelper().getMostRecentHackDao().queryForId(0);
+            return mostRecentHack != null ? mostRecentHack.getHackTime() : null;
         } catch (SQLException e) {
             e.printStackTrace();
         }
