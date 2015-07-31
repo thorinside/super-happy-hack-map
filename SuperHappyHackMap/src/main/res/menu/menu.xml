@@ -30,6 +30,12 @@
     </item>
 
     <item
+        android:id="@+id/menu_love"
+        android:title="@string/menu_item_love"
+        android:icon="@drawable/ic_action_love"
+        app:showAsAction="ifRoom"/>
+
+    <item
         android:id="@+id/menu_about"
         android:title="@string/about"
         app:showAsAction="never">

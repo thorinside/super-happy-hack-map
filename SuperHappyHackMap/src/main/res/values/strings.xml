@@ -51,4 +51,6 @@
     <string name="sojourner_hack_time_reset">Sojourner Hack Alarm Reset</string>
     <string name="app_widget_reset_button_text">Reset Sojourner</string>
     <string name="app_widgt_default_date_text">--</string>
+    <string name="menu_item_love">Send Some Love</string>
+    <string name="love_header">Feel free to keep using Super Happy Hack Map for free. However, if you feel a strong attachment to the app, and would like to contribute to its development, please purchase one of the donations listed below.</string>
 </resources>

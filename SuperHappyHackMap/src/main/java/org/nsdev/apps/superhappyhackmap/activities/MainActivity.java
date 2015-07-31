@@ -8,7 +8,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -53,7 +53,7 @@ import java.util.List;
 import de.psdev.licensesdialog.LicensesDialogFragment;
 import wei.mark.standout.StandOutWindow;
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends AppCompatActivity {
     private static String TAG = "SHHM";
 
     private GoogleMap map;
@@ -447,6 +447,9 @@ public class MainActivity extends ActionBarActivity {
                 return true;
             case R.id.menu_reset_last_hack:
                 sendBroadcast(new Intent(HackReceiver.ACTION_RESET_LAST_HACK, null, getBaseContext(), HackReceiver.class));
+                return true;
+            case R.id.menu_love:
+                startActivity(new Intent(getBaseContext(), LoveActivity.class));
                 return true;
             case R.id.menu_clear_all:
                 final List<Hack> allHacks = DatabaseManager.getInstance().getAllHacks();
