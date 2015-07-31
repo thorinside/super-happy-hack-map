@@ -9,10 +9,12 @@ import com.android_s14.rvh.DataModel;
  */
 public class Donation implements DataModel {
 
+    private final String mProducId;
     private final String mProductName;
     private final String mProductPrice;
 
-    public Donation(String productName, String productPrice) {
+    public Donation(String productId, String productName, String productPrice) {
+        mProducId = productId;
         mProductName = productName;
         mProductPrice = productPrice;
     }
@@ -41,5 +43,9 @@ public class Donation implements DataModel {
     @Override
     public int getImageFieldsNumber() {
         return 0;
+    }
+
+    public String getProducId() {
+        return mProducId;
     }
 }
