@@ -3,25 +3,16 @@
     package="org.nsdev.apps.superhappyhackmap"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <uses-permission
-        android:name="android.permission.ACCESS_WIFI_STATE"/>
-    <uses-permission
-        android:name="android.permission.CHANGE_WIFI_STATE"/>
-    <uses-permission
-        android:name="android.permission.WAKE_LOCK"/>
-    <uses-permission
-        android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission
-        android:name="android.permission.ACCESS_FINE_LOCATION"/>
-
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT"/>
     <uses-permission android:name="android.permission.INTERNET"/>
-
     <uses-permission android:name="android.permission.VIBRATE"/>
-
     <uses-permission android:name="android.permission.EXPAND_STATUS_BAR"/>
-
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
-
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
     <permission
@@ -29,11 +20,9 @@
         android:protectionLevel="signature"/>
 
     <uses-permission android:name="${applicationId}.permission.MAPS_RECEIVE"/>
-
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES"/>
-
     <uses-permission android:name="com.android.vending.BILLING"/>
 
     <uses-feature
@@ -45,26 +34,33 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/Theme.Shhm">
-
         <activity
             android:name=".activities.MainActivity"
             android:launchMode="singleInstance">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
+
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-
+        <activity
+            android:name=".activities.ResetActivity"
+            android:label="@string/title_activity_reset"
+            android:theme="@android:style/Theme.NoDisplay"
+            android:launchMode="singleInstance">
+            <intent-filter>
+                <action android:name="org.nsdev.superhappyhackmap.action.RESET_LAST_HACK"/>
+            </intent-filter>
+        </activity>
         <activity
             android:name=".activities.LoveActivity"
-            android:parentActivityName=".activities.MainActivity"
             android:launchMode="singleInstance"
+            android:parentActivityName=".activities.MainActivity"
             android:taskAffinity=".love">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.MainActivity"/>
         </activity>
-
         <activity
             android:name=".activities.SettingsActivity"
             android:parentActivityName=".activities.MainActivity">
@@ -81,17 +77,16 @@
                 <action android:name="android.intent.action.SCREEN_ON"/>
             </intent-filter>
         </receiver>
-
         <receiver android:name=".receivers.AutoStart">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>
         </receiver>
-
         <receiver android:name=".receivers.SojournerAppWidgetProvider">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
             </intent-filter>
+
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/sojourner_appwidget_info"/>
@@ -107,8 +102,6 @@
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version"/>
-
     </application>
 
 </manifest>
-

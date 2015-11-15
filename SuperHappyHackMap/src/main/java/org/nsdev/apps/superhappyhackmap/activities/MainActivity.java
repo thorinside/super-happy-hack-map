@@ -13,6 +13,7 @@ import android.support.v7.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -390,11 +391,13 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        CameraPosition pos = map.getCameraPosition();
+        if (map != null) {
+            CameraPosition pos = map.getCameraPosition();
 
-        ComplexPreferences complexPreferences = ComplexPreferences.getComplexPreferences(this, "CAMERA_POS", MODE_PRIVATE);
-        complexPreferences.putObject("cameraPosition", pos);
-        complexPreferences.commit();
+            ComplexPreferences complexPreferences = ComplexPreferences.getComplexPreferences(this, "CAMERA_POS", MODE_PRIVATE);
+            complexPreferences.putObject("cameraPosition", pos);
+            complexPreferences.commit();
+        }
 
         super.onDestroy();
     }
@@ -451,6 +454,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.menu_love:
                 startActivity(new Intent(getBaseContext(), LoveActivity.class));
                 return true;
+            case R.id.menu_reset_shortcut_install:
+                addShortcut();
+                return true;
             case R.id.menu_clear_all:
                 final List<Hack> allHacks = DatabaseManager.getInstance().getAllHacks();
                 for (Hack h : allHacks) {
@@ -475,6 +481,24 @@ public class MainActivity extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void addShortcut() {
+        Intent shortcutIntent = new Intent(getApplicationContext(), ResetActivity.class);
+
+        shortcutIntent.setAction(HackReceiver.ACTION_RESET_LAST_HACK);
+
+        Intent addIntent = new Intent();
+        addIntent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
+        addIntent.putExtra(Intent.EXTRA_SHORTCUT_NAME, "Reset Sojourner");
+        addIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE,
+                Intent.ShortcutIconResource.fromContext(getApplicationContext(),
+                        R.mipmap.ic_reset_shortcut));
+
+        addIntent.setAction("com.android.launcher.action.INSTALL_SHORTCUT");
+        getApplicationContext().sendBroadcast(addIntent);
+
+        Toast.makeText(getApplicationContext(), "Sojourner reset shortcut created in launcher.", Toast.LENGTH_LONG).show();
     }
 
     @Subscribe

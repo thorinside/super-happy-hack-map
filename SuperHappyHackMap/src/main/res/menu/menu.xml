@@ -36,6 +36,11 @@
         app:showAsAction="ifRoom"/>
 
     <item
+        android:id="@+id/menu_reset_shortcut_install"
+        android:title="@string/menu_item_reset_shortcut_install"
+        app:showAsAction="never"/>
+
+    <item
         android:id="@+id/menu_about"
         android:title="@string/about"
         app:showAsAction="never">
