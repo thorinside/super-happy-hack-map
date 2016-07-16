@@ -7,6 +7,7 @@ import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.stmt.QueryBuilder;
 
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.List;
 
 public class DatabaseManager {
@@ -82,6 +83,24 @@ public class DatabaseManager {
     public Hack findHackById(int hackId) {
         try {
             return getHelper().getHackDao().queryForId(hackId);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public void setMostRecentHackTime(Date time) {
+        try {
+            getHelper().getMostRecentHackDao().createOrUpdate(new MostRecentHack(time));
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public Date getMostRecentHackTime() {
+        try {
+            MostRecentHack mostRecentHack = getHelper().getMostRecentHackDao().queryForId(0);
+            return mostRecentHack != null ? mostRecentHack.getHackTime() : null;
         } catch (SQLException e) {
             e.printStackTrace();
         }

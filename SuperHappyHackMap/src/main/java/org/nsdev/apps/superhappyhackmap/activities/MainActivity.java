@@ -1,19 +1,21 @@
 package org.nsdev.apps.superhappyhackmap.activities;
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.preference.PreferenceManager;
-import android.support.v4.app.FragmentActivity;
-import android.view.ActionMode;
+import android.support.design.widget.Snackbar;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Toast;
 
-import com.cocosw.undobar.UndoBarController;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -53,13 +55,12 @@ import java.util.List;
 import de.psdev.licensesdialog.LicensesDialogFragment;
 import wei.mark.standout.StandOutWindow;
 
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends BaseActivity {
     private static String TAG = "SHHM";
-    private SupportMapFragment mapFragment;
 
     private GoogleMap map;
-    private ArrayList<Circle> circles = new ArrayList<Circle>();
-    private ArrayList<Marker> markers = new ArrayList<Marker>();
+    private ArrayList<Circle> circles = new ArrayList<>();
+    private ArrayList<Marker> markers = new ArrayList<>();
     private boolean hasZoomed = false;
     private SharedPreferences preferences;
     private Circle mMovingCircle;
@@ -82,7 +83,7 @@ public class MainActivity extends FragmentActivity {
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-        mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
 
         map = mapFragment.getMap();
 
@@ -92,9 +93,16 @@ public class MainActivity extends FragmentActivity {
             return;
         }
 
-        Intent i = new Intent(getBaseContext(), LocationLockService.class);
-        i.setAction(LocationLockService.ACTION_MONITOR_LOCATION);
-        startService(i);
+        checkPermissions(66, new String[] { Manifest.permission.ACCESS_FINE_LOCATION }, () -> {
+            Intent i = new Intent(getBaseContext(), LocationLockService.class);
+            i.setAction(LocationLockService.ACTION_MONITOR_LOCATION);
+            startService(i);
+        }, requestPermissionsRunnable -> {
+            requestPermissionsRunnable.run();
+        }, () -> {
+            // Show Error
+            Toast.makeText(this, R.string.permissions_location_error, Toast.LENGTH_LONG).show();
+        });
 
         if (map != null) {
             ComplexPreferences complexPreferences = ComplexPreferences.getComplexPreferences(this, "CAMERA_POS", MODE_PRIVATE);
@@ -160,10 +168,10 @@ public class MainActivity extends FragmentActivity {
                     List<Circle> tappedCircles = findTappedCircles(latLng.latitude, latLng.longitude);
 
                     if (tappedCircles.size() > 0) {
-                        selectedCircleActionMode = new SelectedCircleActionMode(getSupportFragmentManager());
+                        selectedCircleActionMode = new SelectedCircleActionMode(MainActivity.this);
                         selectedCircleActionMode.setCircles(tappedCircles);
 
-                        List<Hack> tappedHacks = new ArrayList<Hack>();
+                        List<Hack> tappedHacks = new ArrayList<>();
                         for (Circle c : tappedCircles) {
                             LatLng center = c.getCenter();
                             Hack h = DatabaseManager.getInstance().findHackAt(center);
@@ -172,7 +180,11 @@ public class MainActivity extends FragmentActivity {
 
                         selectedCircleActionMode.setHacks(tappedHacks);
 
-                        mCurrentActionMode = startActionMode(selectedCircleActionMode);
+                        mCurrentActionMode = startSupportActionMode(selectedCircleActionMode);
+                        if (mCurrentActionMode != null) {
+                            // Fix for bug https://code.google.com/p/android/issues/detail?id=159527
+                            mCurrentActionMode.invalidate();
+                        }
                     }
                 }
             });
@@ -192,16 +204,16 @@ public class MainActivity extends FragmentActivity {
     SelectedCircleActionMode selectedCircleActionMode = null;
 
     @Override
-    public void onActionModeFinished(ActionMode mode) {
+    public void onSupportActionModeFinished(ActionMode mode) {
         selectedCircleActionMode = null;
         mCurrentActionMode = null;
-        super.onActionModeFinished(mode);
+        super.onSupportActionModeFinished(mode);
         onHackDatabaseUpdated(null);
     }
 
     private List<Circle> findTappedCircles(double latitude, double longitude) {
 
-        ArrayList<Circle> circleList = new ArrayList<Circle>();
+        ArrayList<Circle> circleList = new ArrayList<>();
 
         for (Circle c : circles) {
             float[] results = new float[3];
@@ -364,9 +376,9 @@ public class MainActivity extends FragmentActivity {
                 final Bitmap bmp = factory.makeIcon(h.getNextHackableTimeString(MainActivity.this));
 
                 markers.add(map.addMarker(new MarkerOptions()
-                        .position(center)
-                        .icon(BitmapDescriptorFactory.fromBitmap(bmp))
-                        .anchor(0.5f, 0.75f)
+                                .position(center)
+                                .icon(BitmapDescriptorFactory.fromBitmap(bmp))
+                                .anchor(0.5f, 0.75f)
                 ));
             }
         }
@@ -387,11 +399,13 @@ public class MainActivity extends FragmentActivity {
 
     @Override
     protected void onDestroy() {
-        CameraPosition pos = map.getCameraPosition();
+        if (map != null) {
+            CameraPosition pos = map.getCameraPosition();
 
-        ComplexPreferences complexPreferences = ComplexPreferences.getComplexPreferences(this, "CAMERA_POS", MODE_PRIVATE);
-        complexPreferences.putObject("cameraPosition", pos);
-        complexPreferences.commit();
+            ComplexPreferences complexPreferences = ComplexPreferences.getComplexPreferences(this, "CAMERA_POS", MODE_PRIVATE);
+            complexPreferences.putObject("cameraPosition", pos);
+            complexPreferences.commit();
+        }
 
         super.onDestroy();
     }
@@ -442,32 +456,66 @@ public class MainActivity extends FragmentActivity {
                 final LicensesDialogFragment fragment = LicensesDialogFragment.newInstance(R.raw.notices, true);
                 fragment.show(getSupportFragmentManager(), null);
                 return true;
+            case R.id.menu_reset_last_hack:
+                sendBroadcast(new Intent(HackReceiver.ACTION_RESET_LAST_HACK, null, getBaseContext(), HackReceiver.class));
+                return true;
+            case R.id.menu_love:
+                startActivity(new Intent(getBaseContext(), LoveActivity.class));
+                return true;
+            case R.id.menu_reset_shortcut_install:
+                addShortcut();
+                return true;
             case R.id.menu_clear_all:
                 final List<Hack> allHacks = DatabaseManager.getInstance().getAllHacks();
                 for (Hack h : allHacks) {
                     deleteHack(h);
                 }
 
-                UndoBarController.show(this, getString(R.string.delete_all_undo_prompt), new UndoBarController.UndoListener() {
-                    @Override
-                    public void onUndo(Parcelable parcelable) {
-                        for (Hack h : allHacks) {
-                            DatabaseManager.getInstance().save(h);
-                            updateCooldownForHack(h);
-                        }
-                        onHackDatabaseUpdated(new HackDatabaseUpdatedEvent());
-                        HackReceiver.trigger(getBaseContext());
-                    }
-                });
+                Snackbar.make(findViewById(R.id.snackbar_position), R.string.delete_all_undo_prompt, Snackbar.LENGTH_LONG)
+                        .setAction(R.string.undo, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                for (Hack h : allHacks) {
+                                    DatabaseManager.getInstance().save(h);
+                                    updateCooldownForHack(h);
+                                }
+                                onHackDatabaseUpdated(new HackDatabaseUpdatedEvent());
+                                HackReceiver.trigger(getBaseContext());
+                            }
+                        })
+                        .show();
+
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
+    private void addShortcut() {
+        Intent shortcutIntent = new Intent(getApplicationContext(), ResetActivity.class);
+
+        shortcutIntent.setAction(HackReceiver.ACTION_RESET_LAST_HACK);
+
+        Intent addIntent = new Intent();
+        addIntent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
+        addIntent.putExtra(Intent.EXTRA_SHORTCUT_NAME, "Reset Sojourner");
+        addIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE,
+                Intent.ShortcutIconResource.fromContext(getApplicationContext(),
+                        R.mipmap.ic_reset_shortcut));
+
+        addIntent.setAction("com.android.launcher.action.INSTALL_SHORTCUT");
+        getApplicationContext().sendBroadcast(addIntent);
+
+        Toast.makeText(getApplicationContext(), "Sojourner reset shortcut created in launcher.", Toast.LENGTH_LONG).show();
+    }
+
     @Subscribe
     public void onMoveCircleEvent(MoveCircleEvent event) {
         mMovingCircle = event.getCircle();
+    }
+
+    public void onHackClicked(View button) {
+        sendBroadcast(new Intent(HackReceiver.ACTION_HACK, null, getBaseContext(), HackReceiver.class));
     }
 
 }

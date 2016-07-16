@@ -1,15 +1,15 @@
 package org.nsdev.apps.superhappyhackmap.actions;
 
+import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Color;
-import android.support.v4.app.FragmentManager;
-import android.view.ActionMode;
+import android.support.v7.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.doomonafireball.betterpickers.hmspicker.HmsPickerBuilder;
-import com.doomonafireball.betterpickers.hmspicker.HmsPickerDialogFragment;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.gms.maps.model.Circle;
 
 import org.nsdev.apps.superhappyhackmap.HackTimerApp;
@@ -22,47 +22,47 @@ import org.nsdev.apps.superhappyhackmap.events.MoveCircleEvent;
 import org.nsdev.apps.superhappyhackmap.model.DatabaseManager;
 import org.nsdev.apps.superhappyhackmap.model.Hack;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+
+import hugo.weaving.DebugLog;
 
 /**
  * Created by neal 13-05-23 9:24 PM
  */
-public class SelectedCircleActionMode implements ActionMode.Callback, HmsPickerDialogFragment.HmsPickerDialogHandler
-{
+public class SelectedCircleActionMode implements ActionMode.Callback {
     private List<Circle> circles;
     private List<Hack> hacks;
 
-    private FragmentManager fragmentManager;
-    private ActionMode actionMode;
+    private final Context mContext;
     private Boolean restoreColor = true;
+    private ActionMode mActionMode;
+    private double mSeconds = 5.0 * 60;
 
-    public SelectedCircleActionMode(FragmentManager supportFragmentManager)
-    {
-        this.fragmentManager = supportFragmentManager;
+    public SelectedCircleActionMode(Context context) {
+        mContext = context;
     }
 
-    public void setHacks(List<Hack> hacks)
-    {
+    public void setHacks(List<Hack> hacks) {
         this.hacks = hacks;
     }
 
-    public List<Hack> getHacks()
-    {
+    public List<Hack> getHacks() {
         return hacks;
     }
 
-    private class PreviousCircleColor
-    {
+    private class PreviousCircleColor {
         public int stroke;
         public int fill;
     }
 
-    private HashMap<Circle, PreviousCircleColor> prev = new HashMap<Circle, PreviousCircleColor>();
+    private HashMap<Circle, PreviousCircleColor> prev = new HashMap<>();
 
     @Override
-    public boolean onCreateActionMode(ActionMode actionMode, Menu menu)
-    {
+    public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
+        mActionMode = actionMode;
         // Inflate a menu resource providing context menu items
         MenuInflater inflater = actionMode.getMenuInflater();
         inflater.inflate(R.menu.circle_actions, menu);
@@ -70,16 +70,14 @@ public class SelectedCircleActionMode implements ActionMode.Callback, HmsPickerD
     }
 
     @Override
-    public boolean onPrepareActionMode(ActionMode actionMode, Menu menu)
-    {
-        for (Circle c : circles)
-        {
+    public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
+        for (Circle c : circles) {
             PreviousCircleColor old = new PreviousCircleColor();
             old.stroke = c.getStrokeColor();
             old.fill = c.getFillColor();
 
             c.setStrokeColor(Color.BLUE);
-            c.setFillColor(Color.argb(64,0,0,255));
+            c.setFillColor(Color.argb(64, 0, 0, 255));
 
             prev.put(c, old);
         }
@@ -87,8 +85,7 @@ public class SelectedCircleActionMode implements ActionMode.Callback, HmsPickerD
     }
 
     @Override
-    public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem)
-    {
+    public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
         switch (menuItem.getItemId()) {
             case R.id.menu_burned:
 
@@ -104,13 +101,76 @@ public class SelectedCircleActionMode implements ActionMode.Callback, HmsPickerD
                 return true;
             case R.id.menu_set_cooldown:
 
-                HmsPickerBuilder hpb = new HmsPickerBuilder()
-                        .setFragmentManager(fragmentManager)
-                        .setStyleResId(R.style.BetterPickersDialogFragment);
-                hpb.addHmsPickerDialogHandler(this);
-                hpb.show();
+                new MaterialDialog.Builder(mContext)
+                        .content("Choose the ")
+                        .title("Cooldown Time Modifiers")
+                        .items(new String[]{"Common HS", "Rare HS", "VR HS"})
+                        .itemsCallbackMultiChoice(null, new MaterialDialog.ListCallbackMultiChoice() {
 
-                this.actionMode = actionMode;
+                            @DebugLog
+                            @Override
+                            public boolean onSelection(MaterialDialog materialDialog, Integer[] which, CharSequence[] charSequences) {
+
+                                ArrayList<Integer> mods = new ArrayList<>();
+                                Collections.addAll(mods, which);
+
+                                Collections.sort(mods);
+                                Collections.reverse(mods);
+
+                                mSeconds = 5 * 60.0;
+                                double modifiers = 1.0;
+
+                                boolean isFirst = true;
+                                for (Integer mod : mods) {
+                                    switch (mod) {
+                                        case 0:
+                                            double value = 0.2;
+                                            if (!isFirst) {
+                                                value = value / 2.0;
+                                            }
+                                            modifiers = modifiers * (1 - value);
+                                            break;
+                                        case 1:
+                                            value = 0.5;
+                                            if (!isFirst) {
+                                                value = value / 2.0;
+                                            }
+                                            modifiers = modifiers * (1 - value);
+                                            break;
+                                        case 2:
+                                            value = 0.7;
+                                            if (!isFirst) {
+                                                value = value / 2.0;
+                                            }
+                                            modifiers = modifiers * (1 - value);
+                                            break;
+                                    }
+                                    isFirst = false;
+                                }
+
+                                double cooldownDecrease = 1.0 - modifiers;
+                                mSeconds = mSeconds * (1.0 - cooldownDecrease);
+                                return true;
+                            }
+                        })
+                        .positiveText("Choose Modifiers")
+                        .dismissListener(new DialogInterface.OnDismissListener() {
+                            @Override
+                            public void onDismiss(DialogInterface dialog) {
+
+                                Toast.makeText(mContext, String.format("Cooldown will be %d seconds.", (int) mSeconds), Toast.LENGTH_SHORT).show();
+
+                                for (Hack h : hacks) {
+                                    h.setCoolDownSeconds((int) mSeconds);
+                                    DatabaseManager.getInstance().save(h);
+                                }
+                                HackTimerApp.getBus().post(new CirclesCoolDownTimeChangedEvent(circles, hacks, (int) mSeconds));
+                                mActionMode.finish();
+                            }
+                        })
+                        .show();
+
+                ActionMode actionMode1 = actionMode;
 
                 return true;
 
@@ -120,7 +180,7 @@ public class SelectedCircleActionMode implements ActionMode.Callback, HmsPickerD
                     Toast.makeText(HackTimerApp.getInstance(), R.string.move_instructions, Toast.LENGTH_LONG).show();
                     HackTimerApp.getBus().post(new MoveCircleEvent(circles.get(0)));
 
-                    this.actionMode = actionMode;
+                    actionMode1 = actionMode;
                 } else {
                     Toast.makeText(HackTimerApp.getInstance(), R.string.move_too_many, Toast.LENGTH_LONG).show();
                 }
@@ -138,43 +198,26 @@ public class SelectedCircleActionMode implements ActionMode.Callback, HmsPickerD
     }
 
     @Override
-    public void onDestroyActionMode(ActionMode actionMode)
-    {
+    public void onDestroyActionMode(ActionMode actionMode) {
         if (!restoreColor) return;
 
-        for (Circle c : circles)
-        {
+        for (Circle c : circles) {
             PreviousCircleColor old = prev.get(c);
-            c.setStrokeColor(old.stroke);
-            c.setFillColor(old.fill);
+            if (old != null) {
+                c.setStrokeColor(old.stroke);
+                c.setFillColor(old.fill);
+            }
 
             prev.put(c, old);
         }
     }
 
-    public List<Circle> getCircles()
-    {
+    public List<Circle> getCircles() {
         return circles;
     }
 
-    public void setCircles(List<Circle> circles)
-    {
+    public void setCircles(List<Circle> circles) {
         this.circles = circles;
     }
-
-    @Override
-    public void onDialogHmsSet(int reference, int hours, int minutes, int seconds)
-    {
-        int totalSeconds = seconds + 60 * minutes + 60 * 60 * hours;
-
-        for (Hack h: hacks)
-        {
-            h.setCoolDownSeconds(totalSeconds);
-            DatabaseManager.getInstance().save(h);
-        }
-        HackTimerApp.getBus().post(new CirclesCoolDownTimeChangedEvent(circles, hacks, totalSeconds));
-        actionMode.finish();
-    }
-
 
 }

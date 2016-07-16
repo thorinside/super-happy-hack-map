@@ -26,6 +26,12 @@
             android:defaultValue="true"/>
 
     <CheckBoxPreference
+        android:key="pref_warn_sojourner"
+        android:title="@string/pref_warn_sojourner"
+        android:summary="@string/pref_warn_sojourner_summary"
+        android:defaultValue="true"/>
+
+    <CheckBoxPreference
         android:key="pref_show_hack_helper_window"
         android:title="@string/pref_show_hack_helper_window"
         android:summary="@string/pref_show_hack_helper_window_summary"

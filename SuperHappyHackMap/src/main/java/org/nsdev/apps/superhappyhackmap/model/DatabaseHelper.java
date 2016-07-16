@@ -21,10 +21,11 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private static final String DATABASE_NAME = "SuperHappyHackMapDB.sqlite";
 
     // any time you make changes to your database objects, you may have to increase the database version
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 5;
 
     // the DAO object we use to access the SimpleData table
     private Dao<Hack, Integer> hackDao = null;
+    private Dao<MostRecentHack, Integer> mostRecentHackDao;
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -34,6 +35,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     public void onCreate(SQLiteDatabase database, ConnectionSource connectionSource) {
         try {
             TableUtils.createTable(connectionSource, Hack.class);
+            TableUtils.createTable(connectionSource, MostRecentHack.class);
         } catch (SQLException e) {
             Log.e(DatabaseHelper.class.getName(), "Can't create database", e);
             throw new RuntimeException(e);
@@ -59,11 +61,17 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
                     allSql.add("create table Hack_tmp as select id, latitude, longitude, firstHacked, runningHotSeconds as coolDownSeconds, lastHacked, hackCount, burnedOut from Hack");
                     allSql.add("drop table Hack");
                     allSql.add("alter table Hack_tmp rename to Hack");
+                case 4:
+                    Log.i(TAG, "Upgrading from database version 4");
+                    TableUtils.createTable(connectionSource, MostRecentHack.class);
             }
             for (String sql : allSql) {
                 db.execSQL(sql);
             }
         } catch (SQLException e) {
+            Log.e(DatabaseHelper.class.getName(), "exception during onUpgrade", e);
+            throw new RuntimeException(e);
+        } catch (java.sql.SQLException e) {
             Log.e(DatabaseHelper.class.getName(), "exception during onUpgrade", e);
             throw new RuntimeException(e);
         }
@@ -79,6 +87,18 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             }
         }
         return hackDao;
+    }
+
+    public Dao<MostRecentHack, Integer> getMostRecentHackDao() {
+        if (null == mostRecentHackDao) {
+            try {
+                mostRecentHackDao = getDao(MostRecentHack.class);
+            } catch (java.sql.SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return mostRecentHackDao;
+
     }
 
 }

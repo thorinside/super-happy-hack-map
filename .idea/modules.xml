@@ -2,11 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/libraries/StandOut/library/StandOut-library.iml" filepath="$PROJECT_DIR$/libraries/StandOut/library/StandOut-library.iml" />
       <module fileurl="file://$PROJECT_DIR$/SuperHappyHackMap/SuperHappyHackMap.iml" filepath="$PROJECT_DIR$/SuperHappyHackMap/SuperHappyHackMap.iml" />
-      <module fileurl="file://$PROJECT_DIR$/libraries/AndroidBetterPickers/library/library.iml" filepath="$PROJECT_DIR$/libraries/AndroidBetterPickers/library/library.iml" />
       <module fileurl="file://$PROJECT_DIR$/super-happy-hack-map.iml" filepath="$PROJECT_DIR$/super-happy-hack-map.iml" />
     </modules>
   </component>
 </project>
-

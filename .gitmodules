@@ -1,6 +1,0 @@
-[submodule "libraries/AndroidBetterPickers"]
-	path = libraries/AndroidBetterPickers
-	url = https://github.com/thorinside/android-betterpickers
-[submodule "libraries/StandOut"]
-	path = libraries/StandOut
-	url = git@github.com:thorinside/StandOut.git

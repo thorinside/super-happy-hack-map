@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="hello">Hello ingress-toolbelt!</string>
-    <string name="app_name">Super Happy Hack Map</string>
+    <string name="app_name">Hack Map</string>
     <string name="btn_hack">Hack</string>
     <string name="hack">Hack</string>
     <string name="burned">Burned</string>
@@ -19,12 +19,12 @@
         notification shade.
     </string>
     <string name="ready">Ready</string>
-    <string name="hackable_in">Hackable in</string>
+    <string name="til_next_hack">until hackable</string>
     <string name="hacks">hacks</string>
     <string name="burned_out">Burned Out</string>
     <string name="hack_unavailable">Running Hot</string>
     <string name="hack_available">Hack Available</string>
-    <string name="mark_burned_out">Mark as Burned</string>
+    <string name="mark_burned_out">Burn</string>
     <string name="remembering_geofence">Remembering Geofence</string>
     <string name="pref_show_next_hack_time">Show Hack Time</string>
     <string name="pref_show_next_hack_time_summary">Show next hack time on hot and burned out zones.</string>
@@ -33,7 +33,7 @@
     <string name="set_cooldown">Set Cooldown Time</string>
     <string name="about">About</string>
     <string name="clear_all">Clear All</string>
-    <string name="delete_all_undo_prompt">Undo clear all?</string>
+    <string name="delete_all_undo_prompt">All hack zones cleared.</string>
     <string name="pref_show_hack_helper_window">Show Hack Helper</string>
     <string name="pref_show_hack_helper_window_summary">Show a small, on screen, button that can be used to register hacks more easily.</string>
     <string name="hack_window_notification_text">Click to close Hack Helper window.</string>
@@ -43,4 +43,19 @@
     <string name="move_too_many">You can only move one zone at a time.</string>
     <string name="pref_notification_ringtone">Notification Ringtone</string>
     <string name="pref_notification_ringtone_summary">Tap this to set the notification ringtone for when a hack becomes available.</string>
+    <string name="sojourner_warning">You haven\'t hacked a portal in 23 hours! Go Now!</string>
+    <string name="sojourner_warning_title">Sojourner Warning</string>
+    <string name="reset_hack_time">Reset</string>
+    <string name="reset_hack_time_menu">Sojourner Reset</string>
+    <string name="undo">Undo</string>
+    <string name="sojourner_hack_time_reset">Sojourner Hack Alarm Reset</string>
+    <string name="app_widget_reset_button_text">Reset Sojourner</string>
+    <string name="app_widgt_default_date_text">--</string>
+    <string name="menu_item_love">Send Some Love</string>
+    <string name="love_header">Feel free to keep using Super Happy Hack Map for free. However, if you feel a strong attachment to the app, and would like to contribute to its development, please purchase one of the donations listed below.</string>
+    <string name="menu_item_reset_shortcut_install">Install Reset Shortcut</string>
+    <string name="title_activity_reset">ResetActivity</string>
+    <string name="permissions_location_error">Location Permission Denied</string>
+    <string name="pref_warn_sojourner">Sojourner Warnings</string>
+    <string name="pref_warn_sojourner_summary">Warn if the last hack registered was over 23 hours ago.</string>
 </resources>
