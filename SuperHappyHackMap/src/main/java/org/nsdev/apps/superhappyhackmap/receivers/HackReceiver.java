@@ -360,9 +360,14 @@ public class HackReceiver extends BroadcastReceiver {
 
             HackTimerApp.getBus().post(new HackDatabaseUpdatedEvent());
         } else if (intent.getAction().equals(ACTION_23_HOUR_REMINDER)) {
-
             Uri uri;
             SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+
+            // Don't fire the sojourner warning if the user has disabled it
+            if (!sharedPref.getBoolean(SettingsActivity.PREF_WARN_SOJOURNER, true)) {
+                return;
+            }
+
             final String ringtone = sharedPref.getString("pref_notification_ringtone", "DEFAULT");
             if ("DEFAULT".equals(ringtone) || ringtone == null) {
                 uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);

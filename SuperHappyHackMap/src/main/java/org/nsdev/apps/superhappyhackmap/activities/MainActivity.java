@@ -1,5 +1,6 @@
 package org.nsdev.apps.superhappyhackmap.activities;
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -54,7 +55,7 @@ import java.util.List;
 import de.psdev.licensesdialog.LicensesDialogFragment;
 import wei.mark.standout.StandOutWindow;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
     private static String TAG = "SHHM";
 
     private GoogleMap map;
@@ -92,9 +93,16 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        Intent i = new Intent(getBaseContext(), LocationLockService.class);
-        i.setAction(LocationLockService.ACTION_MONITOR_LOCATION);
-        startService(i);
+        checkPermissions(66, new String[] { Manifest.permission.ACCESS_FINE_LOCATION }, () -> {
+            Intent i = new Intent(getBaseContext(), LocationLockService.class);
+            i.setAction(LocationLockService.ACTION_MONITOR_LOCATION);
+            startService(i);
+        }, requestPermissionsRunnable -> {
+            requestPermissionsRunnable.run();
+        }, () -> {
+            // Show Error
+            Toast.makeText(this, R.string.permissions_location_error, Toast.LENGTH_LONG).show();
+        });
 
         if (map != null) {
             ComplexPreferences complexPreferences = ComplexPreferences.getComplexPreferences(this, "CAMERA_POS", MODE_PRIVATE);

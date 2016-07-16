@@ -16,6 +16,7 @@ public class SettingsActivity extends ActionBarActivity {
     public static final String PREF_SHOW_NEXT_HACK_TIME = "pref_show_next_hack_time";
     public static final String PREF_BUZZ_IF_HACKABLE = "pref_buzz_if_hackable";
     public static final String PREF_SHOW_HACK_HELPER_WINDOW = "pref_show_hack_helper_window";
+    public static final String PREF_WARN_SOJOURNER = "pref_warn_sojourner";
 
     public static class SettingsFragment extends PreferenceFragment {
         @Override

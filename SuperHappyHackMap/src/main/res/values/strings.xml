@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="hello">Hello ingress-toolbelt!</string>
-    <string name="app_name">Super Happy Hack Map</string>
+    <string name="app_name">Hack Map</string>
     <string name="btn_hack">Hack</string>
     <string name="hack">Hack</string>
     <string name="burned">Burned</string>
@@ -55,4 +55,7 @@
     <string name="love_header">Feel free to keep using Super Happy Hack Map for free. However, if you feel a strong attachment to the app, and would like to contribute to its development, please purchase one of the donations listed below.</string>
     <string name="menu_item_reset_shortcut_install">Install Reset Shortcut</string>
     <string name="title_activity_reset">ResetActivity</string>
+    <string name="permissions_location_error">Location Permission Denied</string>
+    <string name="pref_warn_sojourner">Sojourner Warnings</string>
+    <string name="pref_warn_sojourner_summary">Warn if the last hack registered was over 23 hours ago.</string>
 </resources>
