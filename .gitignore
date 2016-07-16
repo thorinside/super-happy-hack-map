@@ -8,3 +8,4 @@ build/
 *.iml
 local.properties
 runConfigurations.xml
+.idea/
