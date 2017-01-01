@@ -183,10 +183,14 @@ public class HackReceiver extends BroadcastReceiver {
             context.startService(i);
 
             AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-            am.cancel(currentAlarm);
+            if (currentAlarm != null) {
+                am.cancel(currentAlarm);
+            }
 
             for (PendingIntent pendingIntent : hackAlarms.values()) {
-                am.cancel(pendingIntent);
+                if (pendingIntent != null) {
+                    am.cancel(pendingIntent);
+                }
             }
 
             StandOutWindow.closeAll(context, HackWindow.class);
@@ -271,7 +275,10 @@ public class HackReceiver extends BroadcastReceiver {
             int hackId = intent.getIntExtra("hack_id", 0);
             if (userDeleted) {
                 AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-                am.cancel(hackAlarms.get(hackId));
+                PendingIntent pendingIntent = hackAlarms.get(hackId);
+                if (pendingIntent != null) {
+                    am.cancel(pendingIntent);
+                }
                 synchronized (cacheLock) {
                     cachedHacks = null;
                 }
@@ -293,10 +300,14 @@ public class HackReceiver extends BroadcastReceiver {
                 }
 
                 AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-                am.cancel(currentAlarm);
+                if (currentAlarm != null) {
+                    am.cancel(currentAlarm);
+                }
 
                 PendingIntent hackPendingIntent = hackAlarms.get(h.getId());
-                am.cancel(hackPendingIntent);
+                if (hackPendingIntent != null) {
+                    am.cancel(hackPendingIntent);
+                }
 
                 hackAlarms.remove(h.getId());
                 h.setBurnedOut(true);
@@ -352,7 +363,9 @@ public class HackReceiver extends BroadcastReceiver {
             AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
             PendingIntent hackPendingIntent = hackAlarms.get(h.getId());
-            am.cancel(hackPendingIntent);
+            if (hackPendingIntent != null) {
+                am.cancel(hackPendingIntent);
+            }
 
             hackAlarms.remove(h.getId());
 
