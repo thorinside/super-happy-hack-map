@@ -3,13 +3,14 @@ package org.nsdev.apps.superhappyhackmap.activities;
 import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -29,6 +30,7 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.maps.android.ui.IconGenerator;
 import com.squareup.otto.Subscribe;
 
@@ -65,6 +67,7 @@ public class MainActivity extends BaseActivity {
     private SharedPreferences preferences;
     private Circle mMovingCircle;
     private ActionMode mCurrentActionMode;
+    private FirebaseAnalytics mFirebaseAnalytics;
 
     /**
      * Called when the activity is first created.
@@ -85,7 +88,11 @@ public class MainActivity extends BaseActivity {
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
 
-        map = mapFragment.getMap();
+        mapFragment.getMapAsync(googleMap -> {
+            map = googleMap;
+            setupMap();
+            HackTimerApp.getBus().post(new HackDatabaseUpdatedEvent());
+        });
 
         int errorCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
         if (errorCode != ConnectionResult.SUCCESS) {
@@ -104,6 +111,13 @@ public class MainActivity extends BaseActivity {
             Toast.makeText(this, R.string.permissions_location_error, Toast.LENGTH_LONG).show();
         });
 
+        // Obtain the FirebaseAnalytics instance.
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+
+        HackReceiver.trigger(getBaseContext());
+    }
+
+    private void setupMap() {
         if (map != null) {
             ComplexPreferences complexPreferences = ComplexPreferences.getComplexPreferences(this, "CAMERA_POS", MODE_PRIVATE);
             CameraPosition pos = complexPreferences.getObject("cameraPosition", CameraPosition.class);
@@ -112,6 +126,16 @@ public class MainActivity extends BaseActivity {
                 hasZoomed = true;
             }
 
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return;
+            }
             map.setMyLocationEnabled(true);
             UiSettings settings = map.getUiSettings();
             settings.setMyLocationButtonEnabled(true);
@@ -197,8 +221,6 @@ public class MainActivity extends BaseActivity {
 
             //LocationInfo location = new LocationInfo(this.getBaseContext());
         }
-
-        HackReceiver.trigger(getBaseContext());
     }
 
     SelectedCircleActionMode selectedCircleActionMode = null;
@@ -331,6 +353,8 @@ public class MainActivity extends BaseActivity {
 
     @Subscribe
     public void onHackDatabaseUpdated(HackDatabaseUpdatedEvent evt) {
+        if (map == null) return;
+
         for (final Circle c : circles) {
             c.remove();
         }

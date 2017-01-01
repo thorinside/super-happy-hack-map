@@ -1,0 +1,115 @@
+{
+  "project_info": {
+    "project_number": "883261040252",
+    "firebase_url": "https://shhm-8884f.firebaseio.com",
+    "project_id": "shhm-8884f",
+    "storage_bucket": "shhm-8884f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:883261040252:android:8c038b1337447bf6",
+        "android_client_info": {
+          "package_name": "org.nsdev.apps.superhappyhackmap"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "883261040252-fnrdp0d4u7glkrgk84due13e26rohjvf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "org.nsdev.apps.superhappyhackmap",
+            "certificate_hash": "5C11A67998EFB98468C421825F7CEA66133DEA3B"
+          }
+        },
+        {
+          "client_id": "883261040252-mkeu6bsi2d765aaihrntrqscqgdf6b16.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "org.nsdev.apps.superhappyhackmap",
+            "certificate_hash": "2AD9493F143014515730DE235A7C254590954212"
+          }
+        },
+        {
+          "client_id": "883261040252-uoalo58nvaqp84b7q3qva6cbfggi1o85.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDPM-jvqB_Qxd8CykfV7HstLyZztyaa-sQ"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "883261040252-uoalo58nvaqp84b7q3qva6cbfggi1o85.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:883261040252:android:bb7b7b632381b982",
+        "android_client_info": {
+          "package_name": "org.nsdev.apps.superhappyhackmap.production"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "883261040252-7ue6pqc3aotk6km0l0frqtk3il4eg4g1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "org.nsdev.apps.superhappyhackmap.production",
+            "certificate_hash": "2AD9493F143014515730DE235A7C254590954212"
+          }
+        },
+        {
+          "client_id": "883261040252-gf8kic847apf8bqqh3p03ql8ut7tc7a5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "org.nsdev.apps.superhappyhackmap.production",
+            "certificate_hash": "5C11A67998EFB98468C421825F7CEA66133DEA3B"
+          }
+        },
+        {
+          "client_id": "883261040252-uoalo58nvaqp84b7q3qva6cbfggi1o85.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDPM-jvqB_Qxd8CykfV7HstLyZztyaa-sQ"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "883261040252-uoalo58nvaqp84b7q3qva6cbfggi1o85.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
