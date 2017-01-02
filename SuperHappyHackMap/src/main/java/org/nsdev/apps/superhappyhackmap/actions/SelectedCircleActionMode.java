@@ -27,8 +27,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import hugo.weaving.DebugLog;
-
 /**
  * Created by neal 13-05-23 9:24 PM
  */
@@ -87,6 +85,8 @@ public class SelectedCircleActionMode implements ActionMode.Callback {
     @Override
     public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
         switch (menuItem.getItemId()) {
+
+
             case R.id.menu_burned:
 
                 restoreColor = false;
@@ -107,7 +107,6 @@ public class SelectedCircleActionMode implements ActionMode.Callback {
                         .items(new String[]{"Common HS", "Rare HS", "VR HS"})
                         .itemsCallbackMultiChoice(null, new MaterialDialog.ListCallbackMultiChoice() {
 
-                            @DebugLog
                             @Override
                             public boolean onSelection(MaterialDialog materialDialog, Integer[] which, CharSequence[] charSequences) {
 

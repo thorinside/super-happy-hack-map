@@ -38,6 +38,16 @@ public class LoveActivity extends AppCompatActivity implements BillingProcessor.
     }
 
     @Override
+    protected void onDestroy() {
+
+        if (mBillingProcessor != null) {
+            mBillingProcessor.release();
+        }
+
+        super.onDestroy();
+    }
+
+    @Override
     public void onProductPurchased(String s, TransactionDetails transactionDetails) {
         mBillingProcessor.consumePurchase(transactionDetails.productId);
     }

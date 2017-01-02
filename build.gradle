@@ -2,13 +2,10 @@
 buildscript {
     repositories {
         jcenter()
-        maven { url 'https://jitpack.io' }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.2.3'
-        classpath 'me.tatarka:gradle-retrolambda:3.3.0-beta4'
-        classpath 'com.jakewharton.hugo:hugo-plugin:1.1.0'
-        classpath 'com.github.JakeWharton:sdk-manager-plugin:1d07987217120fffdc0ce1291d73e974310d7d92'
+        classpath 'me.tatarka:gradle-retrolambda:3.4.0'
         classpath 'com.google.gms:google-services:3.0.0'
     }
 }
